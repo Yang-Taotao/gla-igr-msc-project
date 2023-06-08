@@ -1,17 +1,20 @@
 ## gla-igr-msc-project
 This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
-- Editted: May 30, 2023
+- Editted: June 08, 2023
 
 ## Purpose
-- N/A
+- Using JAX and other packages to construct machine learning scripts
+- Use normalizing flow for template band placement problems
 
 ## File structure
-- N/A
+Master script:
+- main.py
 
 ## Supplementary files
 Readme:
 - README.md
 
 ## Folder structure
-- N/A
+- ./data
+- ./media
