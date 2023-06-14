@@ -1,7 +1,7 @@
 ## gla-igr-msc-project
 This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
-- Editted: June 08, 2023
+- Editted: June 14, 2023
 
 ## Purpose
 - Using JAX and other packages to construct machine learning scripts
@@ -9,7 +9,12 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 
 ## File structure
 Master script:
-- main.py
+- main.py           # Master script
+
+Data module:
+- data_waveform.py  # GW waveform generator
+- data_fisher.py    # Fisher matrix handler
+- data_density.py   # Probability density handler
 
 ## Supplementary files
 Readme:
