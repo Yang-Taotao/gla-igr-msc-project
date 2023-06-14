@@ -1,7 +1,7 @@
 """
-This is the master script for MSc project.
+This is the GW waveform generator module for MSc project.
 
-Created on Thu Jun 08 2023
+Created on Thu Jun 14 2023
 
 @author: Yang-Taotao
 """

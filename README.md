@@ -5,7 +5,7 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 
 ## Purpose
 - Using JAX and other packages to construct machine learning scripts
-- Use normalizing flow for template band placement problems
+- Use normalizing flow for template bank placement problems
 
 ## File structure
 Master script:
