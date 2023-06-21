@@ -7,27 +7,29 @@ Created on Thu Jun 14 2023
 """
 
 # %% Section 0 - Library import
-from data_waveform import data_ripple
+from data_waveform import func_ripple
 
 # %% Section 1 - Waveform generator
 # Define waveform generation parameters
-theta_waveform_gen = (
-    (36.0, 29.0),   # Mass: in units of solar masses
-    (0, 0),         # Spin: no spin
-    (0.0, 0.0),     # Time of coalescence in seconds, and Time of coalescence
-    440,            # Distance to source in Mpc
-    (0.0, 0.2),     # Inclination angle, and Polarization angle
+theta_waveform = (
+    36.0,   # Mass 1: in units of solar masses
+    29.0,   # Mass 2: in units of solar masses
+    0,      # Spin 1: no spin
+    0,      # Spin 2: no spin
+    440,    # Distance to source in Mpc
+    0.0,    # Time of coalescence in seconds,
+    0.0,    # Phase of coalescence
+    0.0,    # Inclination angle
+    0.2,    # Polarization angle
 )
 # Define waveform plotter parameters
-theta_waveform_plot = (
-    24,         # lower freq
-    512,        # upper freq
-    0.5,       # freq step -> delta_f = 1/total_t
+theta_waveform_config = (
+    24,     # Lower freq
+    512,    # Upper freq
+    0.5,    # Freq step -> delta_f = 1/total_t
 )
-# Combined waveform parameters
-theta_waveform = theta_waveform_gen + theta_waveform_plot
 # Call ripple waveform generator and plotter
-data_ripple(theta_waveform)
+result_ripple = func_ripple(theta_waveform, theta_waveform_config)
 
 # %% Section 2 - Fisher matrix calculator
 
