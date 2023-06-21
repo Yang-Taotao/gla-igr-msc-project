@@ -20,9 +20,9 @@ theta_waveform_gen = (
 )
 # Define waveform plotter parameters
 theta_waveform_plot = (
-    24,         # 
-    512,        # 
-    0.01,       # 
+    24,         # lower freq
+    512,        # upper freq
+    0.5,       # freq step -> delta_f = 1/total_t
 )
 # Combined waveform parameters
 theta_waveform = theta_waveform_gen + theta_waveform_plot
