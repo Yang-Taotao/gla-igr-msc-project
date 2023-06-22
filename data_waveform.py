@@ -12,7 +12,6 @@ import jax
 import jax.numpy as jnp
 # Module - ripple related import
 from ripple.waveforms import IMRPhenomXAS
-from ripple import ms_to_Mc_eta
 # Module - other import
 import matplotlib.pyplot as plt
 import scienceplots
@@ -32,29 +31,40 @@ plt.style.use(["science", "notebook", "grid"])
 # jax.grad(waveform, 0) # derivative w.r.t Mc
 # jax.grad(waveform, 1) # deriv w.r.t mass_ratio
 
-def data_ripple(theta, config):
-    # Invoke ms_to_Mc_eta method: chirp mass, eta
-    mc, eta = ms_to_Mc_eta(jnp.array([theta[0], theta[1]]))
-    # Intermidiate calculations - ripple
+def data_ripple(
+        m_c,        # Mass - chirp: in units of solar masses
+        eta,        # eta
+        s_1,        # Spin 1: no spin
+        s_2,        # Spin 2: no spin
+        dist,       # Distance to source in Mpc
+        c_time,     # Time of coalescence in seconds,
+        c_phas,     # Phase of coalescence
+        ang_inc,    # Inclination angle
+        ang_pol,    # Polarization angle
+        f_l,        # Lower freq
+        f_h,        # Upper freq
+        f_s,        # Freq step -> delta_f = 1/total_t
+    ):
+    # Build the theta tuple for ripple
     theta_ripple = jnp.array(
         [
-            mc,         # Mass - chirp
+            m_c,        # Mass - chirp
             eta,        # eta
-            theta[2],   # Spin - 1
-            theta[3],   # Spin - 2
-            theta[4],   # Distance - Mpc
-            theta[5],   # Coalescence - time
-            theta[6],   # Coalescence - phase
-            theta[7],   # Angle - inclination
-            theta[8],   # Angle - ploarization
+            s_1,        # Spin - 1
+            s_2,        # Spin - 2
+            dist,       # Distance - Mpc
+            c_time,     # Coalescence - time
+            c_phas,     # Coalescence - phase
+            ang_inc,    # Angle - inclination
+            ang_pol,    # Angle - ploarization
         ]
     )
-    # Signal freq and ref freq
+    # Build the frequency vector for ripple
     f_sig, f_ref = (
         # Construct sig freq
-        jnp.arange(config[0], config[1], config[2]),
+        jnp.arange(f_l, f_h, f_s),
         # Set refrence sig freq as min freq
-        config[0],
+        f_l,
     )
     # Strain signal generator
     h_plus, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(
@@ -62,9 +72,7 @@ def data_ripple(theta, config):
         theta_ripple, 
         f_ref,
     )
-
-    # INSERT JIT STUFF
-
+    # INSERT JIT STUFF - here
     # Function result gather
     result = (
         f_sig,
@@ -72,12 +80,12 @@ def data_ripple(theta, config):
         h_cros,
     )
     # Function return
-    return result, theta_ripple
+    return result
 
 # %% Section 2 - Ripple waveform plotter
-def plot_ripple(theta):
+def plot_ripple(arg):
     # Local variable repo
-    f_sig, h_plus, h_cros = theta[0]
+    f_sig, h_plus, h_cros = arg
     # Plot init
     plt.figure(figsize=(15, 5))
     # Plotting for alingned spin sys
@@ -108,21 +116,11 @@ def plot_ripple(theta):
     # plt.close()
 
 # %% Section 3 - Derivative calculator
-def data_grad(data_ripple, theta_ripple):
+def data_grad(waveform):
     # Grad func assignment
-    grad_func = jax.grad(data_ripple)
+    grad_m_c = jax.grad(waveform, 0)
+    grad_eta = jax.grad(waveform, 1)
     # Build results
-    result = jax.vmap(grad_func)(theta_ripple)
-    # Func return
-    return result
-
-# %% Section 4 - Simple function calls
-def func_ripple(theta, config):
-    # Call all other functions
-    output_wave, output_theta = data_ripple(theta, config)
-    output_grad = data_grad(data_ripple(theta, config), output_theta)
-    plot_ripple(output_wave)
-    # Results tally
-    result = output_wave, output_grad
+    result = (grad_m_c, grad_eta)
     # Func return
     return result
