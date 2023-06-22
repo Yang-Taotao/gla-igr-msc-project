@@ -9,7 +9,7 @@ Created on Thu Jun 14 2023
 # %% Section 0 - Library import
 import jax.numpy as jnp
 from ripple import ms_to_Mc_eta
-from data_waveform import data_ripple, data_grad, plot_ripple
+from data_waveform import data_ripple, data_grad, plot_ripple, plot_grad
 
 # %% Section 1 - Waveform generator
 # Define stellar mass
@@ -61,12 +61,13 @@ result_ripple = data_ripple(
     f_s,        # Freq step -> delta_f = 1/total_t
 )
 # Generate ripple plot
-plot_ripple(result_ripple)
+# plot_ripple(result_ripple)
 # Calculate ripple grad
-data_grad(result_ripple)
+result_grad = data_grad(result_ripple)
+# Generate grad plot wrt dist - for verification
+plot_grad(result_grad[1])
 
 # %% Section 2 - Fisher matrix calculator
 
 
 # %% Section 3 - Probability density
-

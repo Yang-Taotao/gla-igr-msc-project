@@ -31,20 +31,21 @@ plt.style.use(["science", "notebook", "grid"])
 # jax.grad(waveform, 0) # derivative w.r.t Mc
 # jax.grad(waveform, 1) # deriv w.r.t mass_ratio
 
+
 def data_ripple(
-        m_c,        # Mass - chirp: in units of solar masses
-        eta,        # eta
-        s_1,        # Spin 1: no spin
-        s_2,        # Spin 2: no spin
-        dist,       # Distance to source in Mpc
-        c_time,     # Time of coalescence in seconds,
-        c_phas,     # Phase of coalescence
-        ang_inc,    # Inclination angle
-        ang_pol,    # Polarization angle
-        f_l,        # Lower freq
-        f_h,        # Upper freq
-        f_s,        # Freq step -> delta_f = 1/total_t
-    ):
+    m_c,        # Mass - chirp: in units of solar masses
+    eta,        # eta
+    s_1,        # Spin 1: no spin
+    s_2,        # Spin 2: no spin
+    dist,       # Distance to source in Mpc
+    c_time,     # Time of coalescence in seconds,
+    c_phas,     # Phase of coalescence
+    ang_inc,    # Inclination angle
+    ang_pol,    # Polarization angle
+    f_l,        # Lower freq
+    f_h,        # Upper freq
+    f_s,        # Freq step -> delta_f = 1/total_t
+):
     # Build the theta tuple for ripple
     theta_ripple = jnp.array(
         [
@@ -68,8 +69,8 @@ def data_ripple(
     )
     # Strain signal generator
     h_plus, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(
-        f_sig, 
-        theta_ripple, 
+        f_sig,
+        theta_ripple,
         f_ref,
     )
     # INSERT JIT STUFF - here
@@ -83,6 +84,8 @@ def data_ripple(
     return result
 
 # %% Section 2 - Ripple waveform plotter
+
+
 def plot_ripple(arg):
     # Local variable repo
     f_sig, h_plus, h_cros = arg
@@ -91,15 +94,15 @@ def plot_ripple(arg):
     # Plotting for alingned spin sys
     # No modulation for angular momentum precession
     plt.plot(
-        f_sig, 
-        h_plus.real, 
-        label=r"$h_+$ ripple", 
+        f_sig,
+        h_plus.real,
+        label=r"$h_+$ ripple",
         alpha=0.3,
     )
     plt.plot(
-        f_sig, 
+        f_sig,
         h_cros.imag,
-        label=r"$h_x$ ripple", 
+        label=r"$h_x$ ripple",
         alpha=0.3,
     )
     # Plot customizer
@@ -116,11 +119,22 @@ def plot_ripple(arg):
     # plt.close()
 
 # %% Section 3 - Derivative calculator
+
+
 def data_grad(waveform):
     # Grad func assignment
     grad_m_c = jax.grad(waveform, 0)
-    grad_eta = jax.grad(waveform, 1)
-    # Build results
-    result = (grad_m_c, grad_eta)
+    grad_dist = jax.grad(waveform, 4)
     # Func return
-    return result
+    return grad_m_c, grad_dist
+
+# %% Section 4 - Derivative plotter
+
+
+def plot_grad(array):
+    # Plot init
+    plt.figure(figsize=(15, 5))
+    # Plotter
+    plt.plot(array.real, jnp.arange(1, len(array))+1)
+    plt.savefig("./media/fig_02_waveform_grad.png")
+    plt.close()
