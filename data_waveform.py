@@ -14,10 +14,10 @@ import jax.numpy as jnp
 from ripple.waveforms import IMRPhenomXAS
 # Module - other import
 import matplotlib.pyplot as plt
-import scienceplots
+# import scienceplots
 
 # %% Section 0 - Plotter style customization
-plt.style.use(["science", "notebook", "grid"])
+# plt.style.use(["science", "notebook", "grid"])
 
 # %% Section 1 - Waveform generation function
 
@@ -34,7 +34,7 @@ plt.style.use(["science", "notebook", "grid"])
 
 def data_ripple(
     m_c,        # Mass - chirp: in units of solar masses
-    eta,        # eta
+    eta,        # Mass ratio
     s_1,        # Spin 1: no spin
     s_2,        # Spin 2: no spin
     dist,       # Distance to source in Mpc
@@ -50,7 +50,7 @@ def data_ripple(
     theta_ripple = jnp.array(
         [
             m_c,        # Mass - chirp
-            eta,        # eta
+            eta,        # Mass ratio
             s_1,        # Spin - 1
             s_2,        # Spin - 2
             dist,       # Distance - Mpc
@@ -123,10 +123,13 @@ def plot_ripple(arg):
 
 def data_grad(waveform):
     # Grad func assignment
-    grad_m_c = jax.grad(waveform, 0)
-    grad_dist = jax.grad(waveform, 4)
+    grad_m_c, grad_eta, grad_dist = (
+        jax.grad(waveform, 0),
+        jax.grad(waveform, 1),
+        jax.grad(waveform, 4),
+    )
     # Func return
-    return grad_m_c, grad_dist
+    return grad_m_c, grad_eta, grad_dist
 
 # %% Section 4 - Derivative plotter
 

@@ -12,12 +12,12 @@ from ripple import ms_to_Mc_eta
 from data_waveform import data_ripple, data_grad, plot_ripple, plot_grad
 
 # %% Section 1 - Waveform generator
-# Define stellar mass
+# Define stellar mass - using GW170817 val
 m_1, m_2 = 36.0, 29.0
 # Define waveform generation parameters
 (
     m_c,        # Mass - chirp: in units of solar masses
-    eta,        # eta
+    eta,        # Mass ratio
     s_1,        # Spin 1: no spin
     s_2,        # Spin 2: no spin
     dist,       # Distance to source in Mpc
@@ -48,7 +48,7 @@ m_1, m_2 = 36.0, 29.0
 # Gather ripple waveform
 result_ripple = data_ripple(
     m_c,        # Mass - chirp: in units of solar masses
-    eta,        # eta
+    eta,        # Mass ratio
     s_1,        # Spin 1: no spin
     s_2,        # Spin 2: no spin
     dist,       # Distance to source in Mpc
@@ -61,11 +61,13 @@ result_ripple = data_ripple(
     f_s,        # Freq step -> delta_f = 1/total_t
 )
 # Generate ripple plot
-# plot_ripple(result_ripple)
+plot_ripple(result_ripple)
 # Calculate ripple grad
 result_grad = data_grad(result_ripple)
-# Generate grad plot wrt dist - for verification
-plot_grad(result_grad[1])
+# Generate grad plot - for verification
+# plot_grad(result_grad[0])
+# plot_grad(result_grad[1])
+plot_grad(result_grad[2])
 
 # %% Section 2 - Fisher matrix calculator
 
