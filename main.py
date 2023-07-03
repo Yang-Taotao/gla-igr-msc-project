@@ -64,8 +64,8 @@ plt.show()
 # %%
 # Section 3.a - Derivatives calculator
 # Get real and imag grad func
-grad_real = jax.vmap(jax.grad(h_real), in_axes=(None, 0))(arg_ripple, f_sig)
-grad_imag = jax.vmap(jax.grad(h_imag), in_axes=(None, 0))(arg_ripple, f_sig)
+grad_real = jax.vmap(jax.jit(jax.grad(h_real)), in_axes=(None, 0))(arg_ripple, f_sig)
+grad_imag = jax.vmap(jax.jit(jax.grad(h_imag)), in_axes=(None, 0))(arg_ripple, f_sig)
 # Result recombine
 grad_wave = grad_real + grad_imag * 1j
 
