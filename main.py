@@ -7,70 +7,79 @@ Created on Thu Jun 14 2023
 """
 
 # %% 
-# Section 0 - Library import
+# Section 0.a - Library import
+# Jax related
 import jax
 import jax.numpy as jnp
+# Ripple related
 from ripple import ms_to_Mc_eta
-from data_waveform import ripple_plot #, ripple_waveform, ripple_signal
+from ripple.waveforms import IMRPhenomXAS
+# Plotter related
+import matplotlib.pyplot as plt
+import scienceplots
+plt.style.use(['science', 'notebook', 'grid'])
 
 # %%
-# Section 1.a - Ripple waveform arg val entry
-# Define stellar mass in units of solar mass, using GW170817 val
-m_1, m_2 = 36.0, 29.0
-# Define waveform generation parameters as tuples
-ripple_arg = (
-    # Mass - chirp
-    jnp.asarray(ms_to_Mc_eta(jnp.array([m_1, m_2])))[0],
-    # Mass - ratio
-    jnp.asarray(ms_to_Mc_eta(jnp.array([m_1, m_2])))[1],
-    # Other params
-    0,          # Spin 1: no spin
-    0,          # Spin 2: no spin
-    440,        # Distance to source in Mpc
-    0.0,        # Time of coalescence in seconds,
-    0.0,        # Phase of coalescence
-    0.0,        # Inclination angle
-    0.2,        # Polarization angle
-    24,         # Lower freq
-    512,        # Upper freq
-    0.5,        # Freq step -> delta_f = 1/total_t
-)
-# Assign ripple waveform args to individual vars
-(
-    m_c,        # Mass - chirp
-    eta,        # Mass - ratio
-    s_1,        # Spin 1: no spin
-    s_2,        # Spin 2: no spin
-    dist,       # Distance to source in Mpc
-    c_time,     # Time of coalescence in seconds,
-    c_phas,     # Phase of coalescence
-    ang_inc,    # Inclination angle
-    ang_pol,    # Polarization angle
-    f_l,        # Freq - lower
-    f_h,        # Freq - upper
-    f_s,        # Freq step -> delta_f = 1/total_t
-) = ripple_arg
+# Section 0.b - Jax GPU enable
 
 # %%
-# Section 1.b - Get ripple waveform result and plot
+# Section 1.a - Global varibles repo
+# Variables - Primary
+m1, m2 = 36.0, 29.0                                     # Mass - solar mass
+f_min, f_max, f_del = 24.0, 512.0, 0.5                  # GW waveform freq domain
+# Variables - Primary calculated
+mc, mr = ms_to_Mc_eta(jnp.array([m1, m2]))              # Mass - chirp, ratio
+f_sig, f_ref = jnp.arange(f_min, f_max, f_del), f_min   # Freq - signal, reference
+# Variables - Secondary
+s1, s2 = 0.0, 0.0                                       # Spin
+c_time, c_phas = 0.0, 0.0                               # Coalescence - time, phase
+ang_inc, ang_pol = 0.0, 0.0                             # Angle - incline, polar
+dist = 440.0                                            # Distance - Mpc
+# Arguments - Built
+arg_ripple = jnp.array([mc, mr, s1, s2, dist, c_time, c_phas, ang_inc, ang_pol])
 
-# Get ripple results
-# ripple_res = ripple_waveform(*ripple_arg)
-# Build plotter arg
-# ripple_plot_arg = (ripple_signal(ripple_arg[-3:])[0], ) + ripple_res
-# Get tipple waveform plot
-# ripple_plot(ripple_plot_arg)
-ripple_res = ripple_plot(ripple_arg)
+# %%
+# Section 2.a - Ripple waveform generator
+h_plus, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, arg_ripple, f_ref)
+@jax.jit
+def h_real(theta, f):
+    return IMRPhenomXAS.gen_IMRPhenomXAS_polar(jnp.array([f]), theta, f_ref)[0].real[0]
+@jax.jit
+def h_imag(theta, f):
+    return IMRPhenomXAS.gen_IMRPhenomXAS_polar(jnp.array([f]), theta, f_ref)[0].imag[0]
 
 # %% 
-# Section 1.c - Ripple derivative calculator
+# Section 2.b - Ripple waveform plotter
+# Plot init
+fig, ax = plt.subplots(figsize=(12, 5))
+# Plotter
+ax.plot(f_sig, h_plus.real, label=r"$h_+$ ripple", alpha=0.5)
+ax.plot(f_sig, h_cros.imag, label=r"$h_\times$ ripple", alpha=0.5)
+ax.set(xlabel="Frequency (Hz)", ylabel="Signal Strain")
+ax.legend()
+# Plot admin
+fig.savefig("./media/fig_01_ripple_waveform.png")
+plt.show()
 
-# ripple_grad_func = jax.vjp(ripple_waveform, *ripple_arg)
+# %%
+# Section 3.a - Derivatives calculator
+# Get real and imag grad func
+grad_real = jax.vmap(jax.grad(h_real), in_axes=(None, 0))(arg_ripple, f_sig)
+grad_imag = jax.vmap(jax.grad(h_imag), in_axes=(None, 0))(arg_ripple, f_sig)
+# Result recombine
+grad_wave = grad_real + grad_imag * 1j
 
-# simple_waveform = lambda m_c, eta, s_1: ripple_waveform(m_c, eta, s_1, *ripple_arg[3:])
-# simple_grad = jax.vjp(simple_waveform, m_c, eta, s_1)
-
-# %% Section 2.a - Fisher matrix calculator
-
-
-# %% Section 3 - Probability density
+# %%
+# Section 3.b - Derivatives plotter
+# Plot init
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+# Plotter
+ax1.plot(range(len(grad_wave)), grad_wave.real, alpha=0.5)
+ax2.plot(range(len(grad_wave)), grad_wave.imag, alpha=0.5)
+# Plot customization
+ax1.set(xlabel="Index of entry", ylabel="Gradient value - real")
+ax2.set(xlabel="Index of entry", ylabel="Gradient value - imag")
+# Plot admin
+fig.tight_layout()
+fig.savefig("./media/fig_02_ripple_waveform_grad.png")
+plt.show()
