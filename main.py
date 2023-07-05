@@ -73,7 +73,6 @@ ax.set(xlabel="Frequency (Hz)", ylabel="Signal Strain")
 ax.legend()
 # Plot admin
 fig.savefig("./media/fig_01_ripple_waveform.png")
-plt.show()
 
 # %%
 # Section 3.a - Derivatives calculator
@@ -102,7 +101,6 @@ ax4.set(xlabel="Frequency (Hz)", ylabel="Grad dist - imag")
 # Plot admin
 fig.tight_layout()
 fig.savefig("./media/fig_02_ripple_waveform_grad.png")
-plt.show()
 
 # %%
 # Section 3.c - Grad dist plotter
@@ -119,6 +117,5 @@ ax2.set(xlabel="Frequency (Hz)", ylabel="GW Grad - dist")
 # Plot admin
 fig.tight_layout()
 fig.savefig("./media/fig_03_ripple_waveform_grad_dist.png")
-plt.show()
 
 # %%
