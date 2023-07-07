@@ -48,14 +48,12 @@ arg_ripple = jnp.array(
 h_plus, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, arg_ripple, f_ref)
 
 
-@jax.jit
 def h_real(theta, freq):
     return IMRPhenomXAS.gen_IMRPhenomXAS_polar(
         jnp.array([freq]), theta, f_ref,
     )[0].real[0]
 
 
-@jax.jit
 def h_imag(theta, freq):
     return IMRPhenomXAS.gen_IMRPhenomXAS_polar(
         jnp.array([freq]), theta, f_ref,
@@ -77,10 +75,8 @@ fig.savefig("./media/fig_01_ripple_waveform.png")
 # %%
 # Section 3.a - Derivatives calculator
 # Get real and imag grad func
-grad_real = jax.vmap(jax.jit(jax.grad(h_real)),
-                     in_axes=(None, 0))(arg_ripple, f_sig)
-grad_imag = jax.vmap(jax.jit(jax.grad(h_imag)),
-                     in_axes=(None, 0))(arg_ripple, f_sig)
+grad_real = jax.jit(jax.vmap(jax.grad(h_real), in_axes=(None, 0)))(arg_ripple, f_sig)
+grad_imag = jax.jit(jax.vmap(jax.grad(h_imag), in_axes=(None, 0)))(arg_ripple, f_sig)
 # Result recombine
 grad_wave = grad_real + grad_imag * 1j
 
@@ -107,10 +103,10 @@ fig.savefig("./media/fig_02_ripple_waveform_grad.png")
 # Plot init
 fig, (ax1, ax2) = plt.subplots(2, 1)
 # Plotter
-ax1.plot(f_sig, h_plus.real, alpha=0.5)
-ax1.plot(f_sig, h_cros.imag, alpha=0.5)
-ax2.plot(f_sig, grad_wave.real[:, 4], alpha=0.5)
-ax2.plot(f_sig, grad_wave.imag[:, 4], alpha=0.5)
+ax1.plot(f_sig, h_plus.real, alpha=0.5, label="Strain - real", color="r")
+ax1.plot(f_sig, h_cros.imag, alpha=0.5, label="Strain - imag", color="b")
+ax2.plot(f_sig, grad_wave.real[:, 4], alpha=0.5, label="Grad dist - real", color="y")
+ax2.plot(f_sig, grad_wave.imag[:, 4], alpha=0.5, label="Grad dist - imag", color="g")
 # Plot customization
 ax1.set(xlabel="Frequency (Hz)", ylabel="GW Strain")
 ax2.set(xlabel="Frequency (Hz)", ylabel="GW Grad - dist")
@@ -119,3 +115,4 @@ fig.tight_layout()
 fig.savefig("./media/fig_03_ripple_waveform_grad_dist.png")
 
 # %%
+# Section 4.a - Inner product with Power Spectral Density
