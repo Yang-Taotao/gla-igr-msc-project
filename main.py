@@ -50,13 +50,13 @@ theta_ripple = jnp.array(
 )
 
 # %%
-# Section 2.a - Ripple waveform func jit
-@jax.jit
+# Section 2.a - Ripple waveform func
+
+
 def waveform(theta):
     return IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, theta, f_ref)
 
-# %%
-# Section 2.b - Ripple waveform func for real and imag
+
 def hp_real(theta, freq):
     return IMRPhenomXAS.gen_IMRPhenomXAS_polar(
         jnp.array([freq]), theta, f_ref,
@@ -82,17 +82,17 @@ def hc_imag(theta, freq):
 
 
 # %%
-# Section 2.c - Ripple waveform generator call
+# Section 2.b - Ripple waveform generator call
 h_plus, h_cros = waveform(theta_ripple)
 
 # %%
-# Section 2.d - Ripple waveform plotter
+# Section 2.c - Ripple waveform plotter
 # Plot init
 fig, ax = plt.subplots()
 # Plotter
 ax.plot(f_sig, h_plus.real, label=r"$h_+$ ripple", alpha=0.5)
 ax.plot(f_sig, h_cros.imag, label=r"$h_\times$ ripple", alpha=0.5)
-ax.set(xlabel="Frequency (Hz)", ylabel="Signal Strain")
+ax.set(xlabel=r"Frequency (Hz)", ylabel=r"Signal Strain")
 ax.legend()
 # Plot admin
 fig.savefig("./media/fig_01_ripple_waveform.png")
@@ -118,10 +118,10 @@ ax2.plot(f_sig, grad_hp_wave.imag, alpha=0.5)
 ax3.plot(f_sig, grad_hc_wave.real, alpha=0.5)
 ax4.plot(f_sig, grad_hc_wave.imag, alpha=0.5)
 # Plot customization
-ax1.set(xlabel="Frequency (Hz)", ylabel="Grad hp - real")
-ax2.set(xlabel="Frequency (Hz)", ylabel="Grad hp - imag")
-ax3.set(xlabel="Frequency (Hz)", ylabel="Grad hc - real")
-ax4.set(xlabel="Frequency (Hz)", ylabel="Grad hc - imag")
+ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"Grad $h_+$ - real")
+ax2.set(xlabel=r"Frequency (Hz)", ylabel=r"Grad $h_+$ - imag")
+ax3.set(xlabel=r"Frequency (Hz)", ylabel=r"Grad $h_\times$ - real")
+ax4.set(xlabel=r"Frequency (Hz)", ylabel=r"Grad $h_\times$ - imag")
 # Plot admin
 fig.tight_layout()
 fig.savefig("./media/fig_02_ripple_waveform_grad.png")
