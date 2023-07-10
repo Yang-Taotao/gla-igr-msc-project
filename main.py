@@ -144,4 +144,40 @@ fig.tight_layout()
 fig.savefig("./media/fig_03_ripple_waveform_grad_dist.png")
 
 # %%
-# Section 4.a - FIM
+# Section 4.a - Log likelihood
+# data_m1, data_m2 = (jnp.arange(1.0, 100.0, 1.0), jnp.arange(1.0, 100.0, 1.0))
+
+
+# def log_ll(theta, hp_ref):
+#     hp, _ = waveform(theta)
+#     sigma = jnp.std(hp-hp_ref)
+#     return -0.5 * jnp.sum(
+#         ((hp_ref - hp) ** 2) / (2 * sigma**2)
+#         + jnp.log(2 * jnp.pi * sigma**2)
+#     )
+
+
+# grid_ll = jnp.array(
+#     [
+#         log_ll(
+#             (
+#                 data_m1[i],
+#                 data_m2[j],
+#                 s1,
+#                 s2,
+#                 dist_mpc,
+#                 c_time,
+#                 c_phas,
+#                 ang_inc,
+#                 ang_pol,
+#             ), 
+#             h_plus,
+#         )
+#         for i in range(len(data_m1))
+#         for j in range(len(data_m2))
+#     ]
+# ).reshape(len(data_m1), len(data_m2))
+
+# grid_chi2 = -2 * grid_ll
+# print(grid_chi2.shape)
+# %%
