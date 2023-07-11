@@ -5,17 +5,16 @@ Created on Thu Jun 14 2023
 
 @author: Yang-Taotao
 """
-
 # %%
 # Section 0 - Library import
 # XLA GPU resource setup
 import os
-os.environ['XLA_PYTHON_CLIENT_PREALLOCATE']='false'
-# Jax related
+os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
+# Package - jax
 import jax
 import jax.numpy as jnp
-# Ripple related
-from ripple import ms_to_Mc_eta
+# Package - ripple
+import ripple
 from ripple.waveforms import IMRPhenomXAS
 # Plotter related
 import matplotlib.pyplot as plt
@@ -28,9 +27,9 @@ plt.style.use(['science', 'notebook', 'grid'])
 # Mass - solar mass - GW170817
 m1, m2 = 36.0, 29.0
 # GW waveform freq domain
-f_min, f_max, f_del = 24.0, 512.0, 0.5      
+f_min, f_max, f_del = 24.0, 512.0, 0.5
 # Spin
-s1, s2 = 0.0, 0.0                                   
+s1, s2 = 0.0, 0.0
 # Coalescence - time, phase
 c_time, c_phas = 0.0, 0.0
 # Angle - incline, polar
@@ -41,7 +40,7 @@ dist_mpc = 40.0
 # %%
 # Section 1.b - Build theta_ripple
 # Mass - chirp, ratio
-mc, mr = ms_to_Mc_eta(jnp.array([m1, m2]))          
+mc, mr = ms_to_Mc_eta(jnp.array([m1, m2]))
 # Freq - signal, reference
 f_sig, f_ref = jnp.arange(f_min, f_max, f_del), f_min
 # Arguments - Built
@@ -100,10 +99,14 @@ fig.savefig("./media/fig_01_ripple_waveform.png")
 # %%
 # Section 3.a - Derivatives calculator
 # Get real and imag grad func for h_plus
-grad_hp_real = jax.jit(jax.vmap(jax.grad(hp_real), in_axes=(None, 0)))(theta_ripple, f_sig)
-grad_hp_imag = jax.jit(jax.vmap(jax.grad(hp_imag), in_axes=(None, 0)))(theta_ripple, f_sig)
-grad_hc_real = jax.jit(jax.vmap(jax.grad(hc_real), in_axes=(None, 0)))(theta_ripple, f_sig)
-grad_hc_imag = jax.jit(jax.vmap(jax.grad(hc_imag), in_axes=(None, 0)))(theta_ripple, f_sig)
+grad_hp_real = jax.jit(jax.vmap(jax.grad(hp_real), in_axes=(None, 0)))(
+    theta_ripple, f_sig)
+grad_hp_imag = jax.jit(jax.vmap(jax.grad(hp_imag), in_axes=(None, 0)))(
+    theta_ripple, f_sig)
+grad_hc_real = jax.jit(jax.vmap(jax.grad(hc_real), in_axes=(None, 0)))(
+    theta_ripple, f_sig)
+grad_hc_imag = jax.jit(jax.vmap(jax.grad(hc_imag), in_axes=(None, 0)))(
+    theta_ripple, f_sig)
 # Result recombine
 grad_hp_wave = grad_hp_real + grad_hp_imag * 1j
 grad_hc_wave = grad_hc_real + grad_hc_imag * 1j
@@ -131,53 +134,19 @@ fig.savefig("./media/fig_02_ripple_waveform_grad.png")
 # Plot init
 fig, (ax1, ax2) = plt.subplots(2, 1)
 # Plotter
-ax1.plot(f_sig, grad_hp_wave.real[:, 4], alpha=0.5, label=r"Grad $h_+$ dist - real")
-ax1.plot(f_sig, grad_hp_wave.imag[:, 4], alpha=0.5, label=r"Grad $h_+$ dist - imag")
-ax2.plot(f_sig, grad_hc_wave.real[:, 4], alpha=0.5, label=r"Grad $h_\times$ dist - real")
-ax2.plot(f_sig, grad_hc_wave.imag[:, 4], alpha=0.5, label=r"Grad $h_\times$ dist - imag")
+ax1.plot(f_sig, grad_hp_wave.real[:, 4],
+         alpha=0.5, label=r"Grad $h_+$ dist - real")
+ax1.plot(f_sig, grad_hp_wave.imag[:, 4],
+         alpha=0.5, label=r"Grad $h_+$ dist - imag")
+ax2.plot(f_sig, grad_hc_wave.real[:, 4],
+         alpha=0.5, label=r"Grad $h_\times$ dist - real")
+ax2.plot(f_sig, grad_hc_wave.imag[:, 4],
+         alpha=0.5, label=r"Grad $h_\times$ dist - imag")
 # Plot customization
 ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"Grad $h_+$ - dist")
 ax2.set(xlabel=r"Frequency (Hz)", ylabel=r"Grad $h_\times$ - dist")
 # Plot admin
-ax1.legend(); ax2.legend()
+ax1.legend()
+ax2.legend()
 fig.tight_layout()
 fig.savefig("./media/fig_03_ripple_waveform_grad_dist.png")
-
-# %%
-# Section 4.a - Log likelihood
-# data_m1, data_m2 = (jnp.arange(1.0, 100.0, 1.0), jnp.arange(1.0, 100.0, 1.0))
-
-
-# def log_ll(theta, hp_ref):
-#     hp, _ = waveform(theta)
-#     sigma = jnp.std(hp-hp_ref)
-#     return -0.5 * jnp.sum(
-#         ((hp_ref - hp) ** 2) / (2 * sigma**2)
-#         + jnp.log(2 * jnp.pi * sigma**2)
-#     )
-
-
-# grid_ll = jnp.array(
-#     [
-#         log_ll(
-#             (
-#                 data_m1[i],
-#                 data_m2[j],
-#                 s1,
-#                 s2,
-#                 dist_mpc,
-#                 c_time,
-#                 c_phas,
-#                 ang_inc,
-#                 ang_pol,
-#             ), 
-#             h_plus,
-#         )
-#         for i in range(len(data_m1))
-#         for j in range(len(data_m2))
-#     ]
-# ).reshape(len(data_m1), len(data_m2))
-
-# grid_chi2 = -2 * grid_ll
-# print(grid_chi2.shape)
-# %%
