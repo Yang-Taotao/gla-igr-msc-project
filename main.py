@@ -40,7 +40,7 @@ dist_mpc = 40.0
 # %%
 # Section 1.b - Build theta_ripple
 # Mass - chirp, ratio
-mc, mr = ms_to_Mc_eta(jnp.array([m1, m2]))
+mc, mr = ripple.ms_to_Mc_eta(jnp.array([m1, m2]))
 # Freq - signal, reference
 f_sig, f_ref = jnp.arange(f_min, f_max, f_del), f_min
 # Arguments - Built
