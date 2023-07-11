@@ -12,6 +12,7 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Use normalizing flow for template bank placement problems
 
 ## File structure
+```bash
 ├── README.md
 ├── data
 ├── data_plotter.py
@@ -21,3 +22,4 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
     ├── fig_01_ripple_waveform.png
     ├── fig_02_ripple_waveform_grad.png
     └── fig_03_ripple_waveform_grad_dist.png
+```

@@ -54,40 +54,42 @@ def ripple_freq_builder(theta=(24.0, 512.0, 0.5)):
 def ripple_waveform(theta):
     # Local variable repo
     f_sig, f_ref = ripple_freq_builder()
+    theta_ripple = ripple_theta_builder(theta)
     # Generate strain waveform - plus, cross
-    hp, hc = IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, theta, f_ref)
+    hp, hc = IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, theta_ripple, f_ref)
     # Pack ripple waveform tuple
     result = hp, hc
     # Func return
     return result
 
 
-def ripple_waveform_plus(theta):
+def ripple_waveform_plus(theta, freq):
     # Generate strain waveform - plus, cross
-    hp, _ = ripple_waveform(theta)
+    _, f_ref = ripple_freq_builder()
+    # Generate strain waveform - plus, cross
+    hp, _ = IMRPhenomXAS.gen_IMRPhenomXAS_polar(jnp.array([freq]), theta, f_ref)
     # Pack ripple waveform tuple
-    result = hp
+    result = hp.real[0]
     # Func return
     return result
 
 
-def ripple_waveform_cros(theta):
+def ripple_waveform_cros(theta, freq):
     # Generate strain waveform - plus, cross
-    _, hc = ripple_waveform(theta)
+    _, f_ref = ripple_freq_builder()
+    # Generate strain waveform - plus, cross
+    _, hc = IMRPhenomXAS.gen_IMRPhenomXAS_polar(jnp.array([freq]), theta, f_ref)
     # Pack ripple waveform tuple
-    result = hc
+    result = hc.imag[0]
     # Func return
     return result
-
 
 # %%
 # Ripple - gradient calculator
-
-
-def ripple_grad(func, theta, argnum=0):
-    # Define grad func
-    grad_func = jax.grad(func)
-    # Pack ripple grad result
-    result = grad_func(theta)[argnum]
+def ripple_grad_vmap(func, theta):
+    # Local variable repo
+    f_sig, _ = ripple_freq_builder()
+    # Map grad results
+    result = jax.vmap(jax.grad(func), in_axes=(None, 0))(theta, f_sig)
     # Func return
     return result
