@@ -14,8 +14,6 @@ plt.style.use(['science', 'notebook', 'grid'])
 
 # %%
 # Ripple - theta label
-
-
 def ripple_theta_label(idx=0):
     # Build label tuple
     label = (
@@ -36,8 +34,6 @@ def ripple_theta_label(idx=0):
 
 # %%
 # Ripple - waveform plotter
-
-
 def ripple_waveform_plot(theta):
     # Local variable repo
     hp, hc, f_sig = theta
@@ -59,8 +55,6 @@ def ripple_waveform_plot(theta):
 
 # %%
 # Ripple - grad plotter
-
-
 def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     # Local variable repo
     grad_hp, grad_hc, f_sig = theta
@@ -69,13 +63,13 @@ def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
-    ax1.plot(f_sig, grad_hp[idx1],
+    ax1.plot(f_sig, grad_hp[:, idx1],
             alpha=0.5, label=r"$h_+$ real {}".format(label1))
-    ax1.plot(f_sig, grad_hc[idx1],
+    ax1.plot(f_sig, grad_hc[:, idx1],
             alpha=0.5, label=r"$h_\times$ imag {}".format(label1))
-    ax2.plot(f_sig, grad_hp[idx2],
+    ax2.plot(f_sig, grad_hp[:, idx2],
             alpha=0.5, label=r"$h_+$ real {}".format(label2))
-    ax2.plot(f_sig, grad_hc[idx2],
+    ax2.plot(f_sig, grad_hc[:, idx2],
             alpha=0.5, label=r"$h_\times$ imag {}".format(label2))
     # Plot customization
     ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"$\partial h_+/ \partial$")
@@ -84,4 +78,4 @@ def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     ax1.legend()
     ax2.legend()
     fig.tight_layout()
-    fig.savefig("./figures/fig_02_ripple_waveform_grad_dist.png")
+    fig.savefig("./figures/fig_02_ripple_waveform_grad.png")
