@@ -18,7 +18,6 @@ from data_plotter import (
     ripple_waveform_plot, 
     ripple_grad_plot_idx,
 )
-import jax.numpy as jnp
 
 # %%
 # Section 1.a -  Define GW data theta
@@ -32,9 +31,6 @@ data_freq = (24.0, 512.0, 0.5)
 # t ~ 37.6s
 data_hp, data_hc = ripple_waveform(data_theta)
 f_sig, _ = ripple_freq_builder(data_freq)
-# Save array to local
-jnp.save("./data/data_170817_plus.npy", data_hp)
-jnp.save("./data/data_170817_cros.npy", data_hc)
 
 # %%
 # Section 1.c -  Plot GW data - GW170817
