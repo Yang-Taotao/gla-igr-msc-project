@@ -13,6 +13,18 @@ import scienceplots
 plt.style.use(['science', 'notebook', 'grid'])
 
 # %%
+# Ripple - plotter resources
+lbl_p, lbl_c, lbl_d, lbl_r, lbl_i, lbl_f, lbl_h = (
+    r"$h_+$ ",
+    r"$h_\times$ ",
+    r"$\partial$ ",
+    r"$\Re$ ",
+    r"$\Im$ ",
+    r"Frequency ",
+    r"GW Strain ",
+)
+
+# %%
 # Ripple - theta label
 
 
@@ -44,13 +56,13 @@ def ripple_waveform_plot(theta):
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
-    ax1.plot(f_sig, h_plus.real, label=r"$h_+$ real", alpha=0.5)
-    ax1.plot(f_sig, h_plus.imag, label=r"$h_+$ imag", alpha=0.5)
-    ax2.plot(f_sig, h_cros.real, label=r"$h_\times$ real", alpha=0.5)
-    ax2.plot(f_sig, h_cros.imag, label=r"$h_\times$ imag", alpha=0.5)
+    ax1.plot(f_sig, h_plus.real, label=f"{lbl_r}{lbl_p}", alpha=0.5)
+    ax1.plot(f_sig, h_plus.imag, label=f"{lbl_i}{lbl_p}", alpha=0.5)
+    ax2.plot(f_sig, h_cros.real, label=f"{lbl_r}{lbl_c}", alpha=0.5)
+    ax2.plot(f_sig, h_cros.imag, label=f"{lbl_i}{lbl_c}", alpha=0.5)
     # Plot customization
-    ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"GW Strain $h_+$")
-    ax2.set(xlabel=r"Frequency (Hz)", ylabel=r"GW Strain $h_\times$")
+    ax1.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}{lbl_p}")
+    ax2.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}{lbl_c}")
     # Plot admin
     ax1.legend()
     ax2.legend()
@@ -70,16 +82,16 @@ def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
     ax1.plot(f_sig, grad_hp[:, idx1],
-             alpha=0.5, label=r"$h_+$-real-{label1}")
+             alpha=0.5, label=f"{lbl_r}{lbl_p}")
     ax1.plot(f_sig, grad_hc[:, idx1],
-             alpha=0.5, label=r"$h_\times$-imag-{label1}")
+             alpha=0.5, label=f"{lbl_i}{lbl_c}")
     ax2.plot(f_sig, grad_hp[:, idx2],
-             alpha=0.5, label=r"$h_+$-real-{label2}")
+             alpha=0.5, label=f"{lbl_r}{lbl_p}")
     ax2.plot(f_sig, grad_hc[:, idx2],
-             alpha=0.5, label=r"$h_\times$-imag-{label2}")
+             alpha=0.5, label=f"{lbl_i}{lbl_c}")
     # Plot customization
-    ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"$\partial h_+/ \partial$")
-    ax2.set(xlabel=r"Frequency (Hz)", ylabel=r"$\partial h_\times/ \partial$")
+    ax1.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_d}/{lbl_d}{label1}")
+    ax2.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_d}/{lbl_d}{label2}")
     # Plot admin
     ax1.legend()
     ax2.legend()

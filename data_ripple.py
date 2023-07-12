@@ -8,6 +8,7 @@ Created on Thu Jul 11 2023
 # %%
 # Library import
 import os
+from typing import Callable
 # Package - jax
 import jax
 import jax.numpy as jnp
@@ -21,7 +22,7 @@ os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 # Ripple - theta build
 
 
-def ripple_theta_build(theta=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)):
+def ripple_theta_build(theta: tuple=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)):
     # Local variable repo
     m_1, m_2, s_1, s_2, dist_mpc, c_time, c_phas, ang_inc, ang_pol = theta
     # Calculate mass - chirp, ratio
@@ -37,7 +38,7 @@ def ripple_theta_build(theta=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)):
 # Ripple - freq build
 
 
-def ripple_freq_build(theta=(24.0, 512.0, 0.5)):
+def ripple_freq_build(theta: tuple=(24.0, 512.0, 0.5)):
     # Local variable repo
     f_min, f_max, f_del = theta
     # Calculate freq - signal, reference
@@ -51,7 +52,7 @@ def ripple_freq_build(theta=(24.0, 512.0, 0.5)):
 # Ripple - file path build
 
 
-def ripple_file_path(theta, check):
+def ripple_file_path(theta: tuple, check: str):
     # Local variable repo
     path_data, path_grad = "./data/data", "./data/grad"
     path_hp, path_hc = "plus.npy", "cros.npy"
@@ -77,7 +78,7 @@ def ripple_file_path(theta, check):
 # Ripple - file manager
 
 
-def ripple_file_check(theta):
+def ripple_file_check(theta: tuple):
     # Local varibale repo
     path_hp, path_hc = theta
     # Check both local files exist
@@ -86,7 +87,7 @@ def ripple_file_check(theta):
     return result
 
 
-def ripple_file_load(theta):
+def ripple_file_load(theta: tuple):
     # Local variable repo
     path_hp, path_hc = theta
     # Load file
@@ -97,7 +98,7 @@ def ripple_file_load(theta):
     return result
 
 
-def ripple_file_save(theta):
+def ripple_file_save(theta: tuple):
     # Local variable repo
     path_hp, path_hc, data_hp, data_hc = theta
     # Save file
@@ -110,7 +111,7 @@ def ripple_file_save(theta):
 # Ripple - waveform generator
 
 
-def ripple_waveform(theta):
+def ripple_waveform(theta: tuple):
     # Local variable repo
     f_sig, f_ref = ripple_freq_build()
     theta_ripple = ripple_theta_build(theta)
@@ -135,7 +136,7 @@ def ripple_waveform(theta):
     return result
 
 
-def ripple_waveform_plus(theta, freq):
+def ripple_waveform_plus(theta: tuple, freq: jnp.ndarray):
     # Generate strain waveform - plus, cross
     _, f_ref = ripple_freq_build()
     # Generate strain waveform - plus, cross
@@ -147,7 +148,7 @@ def ripple_waveform_plus(theta, freq):
     return result
 
 
-def ripple_waveform_cros(theta, freq):
+def ripple_waveform_cros(theta: tuple, freq: jnp.ndarray):
     # Generate strain waveform - plus, cross
     _, f_ref = ripple_freq_build()
     # Generate strain waveform - plus, cross
@@ -162,7 +163,7 @@ def ripple_waveform_cros(theta, freq):
 # Ripple - gradient calculator
 
 
-def ripple_grad_vmap(func, theta):
+def ripple_grad_vmap(func: Callable, theta: tuple):
     # Local variable repo
     f_sig, _ = ripple_freq_build()
     theta_ripple = ripple_theta_build(theta)
