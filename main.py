@@ -9,7 +9,7 @@ Created on Thu Jul 11 2023
 # Section 0 - Library import
 from data_ripple import (
     ripple_waveform,
-    ripple_freq_builder,
+    ripple_freq_build,
     ripple_waveform_plus,
     ripple_waveform_cros,
     ripple_grad_vmap,
@@ -18,7 +18,6 @@ from data_plotter import (
     ripple_waveform_plot,
     ripple_grad_plot_idx,
 )
-
 # %%
 # Section 1.a -  Define GW data theta
 # m1, m2, s1, s2, dist_mpc, c_time, c_phas, ang_inc, ang_pol
@@ -30,7 +29,7 @@ data_freq = (24.0, 512.0, 0.5)
 # Section 1.b -  Generate GW data
 # t ~ 37.6s
 data_hp, data_hc = ripple_waveform(data_theta)
-f_sig, _ = ripple_freq_builder(data_freq)
+f_sig, _ = ripple_freq_build(data_freq)
 
 # %%
 # Section 1.c -  Plot GW data - GW170817
