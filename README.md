@@ -32,5 +32,9 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 ```
 
 ## Active plots
+- GW170817 waveform generated with 
+```ripplegw```
 ![GW170817 waveform](./figures/fig_01_ripple_waveform.png)
+- GW170817 waveform gradient plot with
+```jax.vmap(jax.grad())```
 ![Gradient plot](./figures/fig_02_ripple_waveform_grad.png)
