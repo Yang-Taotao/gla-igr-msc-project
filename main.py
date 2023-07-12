@@ -9,13 +9,13 @@ Created on Thu Jul 11 2023
 # Section 0 - Library import
 from data_ripple import (
     ripple_waveform,
-    ripple_freq_builder, 
-    ripple_waveform_plus, 
-    ripple_waveform_cros, 
+    ripple_freq_builder,
+    ripple_waveform_plus,
+    ripple_waveform_cros,
     ripple_grad_vmap,
 )
 from data_plotter import (
-    ripple_waveform_plot, 
+    ripple_waveform_plot,
     ripple_grad_plot_idx,
 )
 

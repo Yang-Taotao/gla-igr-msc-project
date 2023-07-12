@@ -7,9 +7,7 @@ Created on Thu Jun 14 2023
 """
 # %%
 # Section 0 - Library import
-# XLA GPU resource setup
 import os
-os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 # Package - jax
 import jax
 import jax.numpy as jnp
@@ -21,6 +19,8 @@ import matplotlib.pyplot as plt
 import scienceplots
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
+# XLA GPU resource setup
+os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 
 # %%
 # Section 1.a - Global varibles repo

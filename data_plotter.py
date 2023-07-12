@@ -14,6 +14,8 @@ plt.style.use(['science', 'notebook', 'grid'])
 
 # %%
 # Ripple - theta label
+
+
 def ripple_theta_label(idx=0):
     # Build label tuple
     label = (
@@ -34,16 +36,18 @@ def ripple_theta_label(idx=0):
 
 # %%
 # Ripple - waveform plotter
+
+
 def ripple_waveform_plot(theta):
     # Local variable repo
-    hp, hc, f_sig = theta
+    h_plus, h_cros, f_sig = theta
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
-    ax1.plot(f_sig, hp.real, label=r"$h_+$ real", alpha=0.5)
-    ax1.plot(f_sig, hp.imag, label=r"$h_+$ imag", alpha=0.5)
-    ax2.plot(f_sig, hc.real, label=r"$h_\times$ real", alpha=0.5)
-    ax2.plot(f_sig, hc.imag, label=r"$h_\times$ imag", alpha=0.5)
+    ax1.plot(f_sig, h_plus.real, label=r"$h_+$ real", alpha=0.5)
+    ax1.plot(f_sig, h_plus.imag, label=r"$h_+$ imag", alpha=0.5)
+    ax2.plot(f_sig, h_cros.real, label=r"$h_\times$ real", alpha=0.5)
+    ax2.plot(f_sig, h_cros.imag, label=r"$h_\times$ imag", alpha=0.5)
     # Plot customization
     ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"GW Strain $h_+$")
     ax2.set(xlabel=r"Frequency (Hz)", ylabel=r"GW Strain $h_\times$")
@@ -55,6 +59,8 @@ def ripple_waveform_plot(theta):
 
 # %%
 # Ripple - grad plotter
+
+
 def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     # Local variable repo
     grad_hp, grad_hc, f_sig = theta
@@ -64,13 +70,13 @@ def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
     ax1.plot(f_sig, grad_hp[:, idx1],
-            alpha=0.5, label=r"$h_+$ real {}".format(label1))
+             alpha=0.5, label=r"$h_+$-real-{label1}")
     ax1.plot(f_sig, grad_hc[:, idx1],
-            alpha=0.5, label=r"$h_\times$ imag {}".format(label1))
+             alpha=0.5, label=r"$h_\times$-imag-{label1}")
     ax2.plot(f_sig, grad_hp[:, idx2],
-            alpha=0.5, label=r"$h_+$ real {}".format(label2))
+             alpha=0.5, label=r"$h_+$-real-{label2}")
     ax2.plot(f_sig, grad_hc[:, idx2],
-            alpha=0.5, label=r"$h_\times$ imag {}".format(label2))
+             alpha=0.5, label=r"$h_\times$-imag-{label2}")
     # Plot customization
     ax1.set(xlabel=r"Frequency (Hz)", ylabel=r"$\partial h_+/ \partial$")
     ax2.set(xlabel=r"Frequency (Hz)", ylabel=r"$\partial h_\times/ \partial$")
