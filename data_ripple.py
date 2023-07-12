@@ -19,8 +19,6 @@ from ripple.waveforms import IMRPhenomXAS
 
 # %%
 # Ripple - theta builder
-
-
 def ripple_theta_builder(theta=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)):
     # Local variable repo
     m1, m2, s1, s2, dist_mpc, c_time, c_phas, ang_inc, ang_pol = theta
@@ -35,8 +33,6 @@ def ripple_theta_builder(theta=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0))
 
 # %%
 # Ripple - freq builder
-
-
 def ripple_freq_builder(theta=(24.0, 512.0, 0.5)):
     # Local variable repo
     f_min, f_max, f_del = theta
@@ -48,15 +44,80 @@ def ripple_freq_builder(theta=(24.0, 512.0, 0.5)):
     return result
 
 # %%
+# Ripple - file path builder
+def ripple_file_path(theta, checker):
+    # Local variable repo
+    path_data, path_grad = "./data/data", "./data/grad"
+    path_hp, path_hc = "plus.npy", "cros.npy"
+    # For waveform data
+    if checker == "data":
+        data_header = path_data
+    # For gradient data 
+    elif checker == "grad":
+        data_header = path_grad
+    # Generate path string
+    data_path = "_"+"_".join([str(i) for i in theta]) + "_"
+    # Build hp. hc file_path
+    path_file_hp, path_file_hc = (
+        data_header + data_path + path_hp,
+        data_header + data_path + path_hc,
+    )
+    # Pack file_data into results
+    result = path_file_hp, path_file_hc
+    # Func return
+    return result
+
+# %%
+# Ripple - file manager
+def ripple_file_checker(theta):
+    # Local varibale repo
+    path_hp, path_hc = theta
+    # Check both local files exist
+    result = os.path.exists(path_hp) and os.path.exists(path_hc)
+    # Func return
+    return result
+
+
+def ripple_file_load(theta):
+    # Local variable repo
+    path_hp, path_hc = theta
+    # Load file
+    hp, hc = jnp.load(path_hp), jnp.load(path_hc)
+    # Pack result
+    result = hp, hc
+    # Func return
+    return result
+
+
+def ripple_file_save(theta):
+    # Local variable repo
+    path_hp, path_hc, data_hp, data_hc = theta
+    # Save file
+    jnp.save(path_hp, data_hp)
+    jnp.save(path_hc, data_hc)
+    # Report save status
+    print("File: data_ripple saved to local.")
+
+# %%
 # Ripple - waveform generator
-
-
 def ripple_waveform(theta):
     # Local variable repo
     f_sig, f_ref = ripple_freq_builder()
     theta_ripple = ripple_theta_builder(theta)
-    # Generate strain waveform - plus, cross
-    hp, hc = IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, theta_ripple, f_ref)
+    # Get file path
+    theta_path = ripple_file_path(theta, "data")
+    # Pass in file data checker
+    checker_file = ripple_file_checker(theta_path)
+    # Conditional npy array access
+    if checker_file == True:
+        # Load hp, hc 
+        hp, hc = ripple_file_load(theta_path)
+    # If no local stored file
+    else:
+        # Generate strain waveform - plus, cross
+        hp, hc = IMRPhenomXAS.gen_IMRPhenomXAS_polar(f_sig, theta_ripple, f_ref)
+        # Save array to local
+        ripple_file_save((*theta_path, hp, hc))
     # Pack ripple waveform tuple
     result = hp, hc
     # Func return
@@ -89,7 +150,27 @@ def ripple_waveform_cros(theta, freq):
 def ripple_grad_vmap(func, theta):
     # Local variable repo
     f_sig, _ = ripple_freq_builder()
-    # Map grad results
-    result = jax.vmap(jax.grad(func), in_axes=(None, 0))(theta, f_sig)
+    theta_ripple = ripple_theta_builder(theta)
+    # Get file path
+    theta_path = ripple_file_path(theta, "grad")
+    # Pass in file data checker
+    checker_file = ripple_file_checker(theta_path)
+    # If local file exists
+    if checker_file == True:
+        if func.__name__ == "ripple_waveform_plus":
+            result, _ = ripple_file_load(theta_path)
+        elif func.__name__ == "ripple_waveform_cros":
+            _, result = ripple_file_load(theta_path)
+    # If no local file
+    elif checker_file == False:
+        # Map grad results
+        result = jax.vmap(jax.grad(func), in_axes=(None, 0))(theta_ripple, f_sig)
+        # Save to loacl
+        if func.__name__ == "ripple_waveform_plus":
+            jnp.save(theta_path[0], result)
+        elif func.__name__ == "ripple_waveform_cros":
+            jnp.save(theta_path[1], result)
+        # Report save status
+        print("File: grad_vmap saved to local.")
     # Func return
     return result
