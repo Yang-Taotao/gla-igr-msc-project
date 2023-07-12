@@ -15,18 +15,16 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 ```bash
 .
 ├── README.md
-├── __pycache__
-│   ├── data_plotter.cpython-310.pyc
-│   ├── data_ripple.cpython-310.pyc
-│   └── data_waveform.cpython-310.pyc
 ├── data
-│   ├── data_170817_cros.npy
-│   └── data_170817_plus.npy
+│   ├── data_36.0_29.0_0.0_0.0_40.0_0.0_0.0_0.0_0.0_cros.npy
+│   ├── data_36.0_29.0_0.0_0.0_40.0_0.0_0.0_0.0_0.0_plus.npy
+│   ├── grad_36.0_29.0_0.0_0.0_40.0_0.0_0.0_0.0_0.0_cros.npy
+│   └── grad_36.0_29.0_0.0_0.0_40.0_0.0_0.0_0.0_0.0_plus.npy
 ├── data_plotter.py
 ├── data_ripple.py
 ├── figures
 │   ├── fig_01_ripple_waveform.png
-│   └── fig_02_ripple_waveform_grad_dist.png
+│   └── fig_02_ripple_waveform_grad.png
 ├── main.py
 ├── main_legacy.py
 └── notebook
