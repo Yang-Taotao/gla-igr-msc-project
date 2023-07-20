@@ -55,7 +55,7 @@ def fim_bilby_psd(theta: tuple=(24.0, 512.0, 0.5)):
     # Get dectector duration
     detector.duration = duration
     # Get psd as func result
-    result = detector.power_spectral_density_array
+    result = detector.power_spectral_density_array[1:]
     # Func return
     return result
 
@@ -76,7 +76,7 @@ def fim_inner_prod(data: jnp.ndarray, theta: tuple=(0,1)):
     # Get inner product - raw
     inner_prod = jnp.sum(grad_prod / psd)
     # Convert inner product to its real part
-    result = -(2.0) * diff * jnp.real(inner_prod)
+    result = 4 * diff * jnp.real(inner_prod)
     # Func return
     return result
 
@@ -91,7 +91,7 @@ def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
     matrix = jax.vmap(fim_inner_prod, in_axes=(None, 0))(
         data, (idx[:, None], idx[None, :])
     )
-    # Matrix determinanat calculator
-    result = jnp.linalg.det(matrix)
+    # Matrix - square root of determinanat calculator
+    result = jnp.sqrt(jnp.linalg.det(matrix))
     # Func return
     return result
