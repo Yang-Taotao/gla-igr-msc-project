@@ -9,6 +9,7 @@ Created on Thu Jul 11 2023
 # Library import
 import matplotlib.pyplot as plt
 import scienceplots
+from data_ripple import ripple_freq_build
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
 
@@ -97,3 +98,23 @@ def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
     ax2.legend()
     fig.tight_layout()
     fig.savefig("./figures/fig_02_ripple_waveform_grad.png")
+
+# %%
+# Bilby - psd plotter
+
+
+def bilby_plot(theta):
+    # Local variable repo
+    freq_base, strain = theta
+    # Build freq
+    freq, _ = ripple_freq_build(freq_base)
+    # Plot init
+    fig, ax = plt.subplots()
+    # Plotter
+    ax.plot(freq, strain, label="H1 PSD", alpha=0.5)
+    # Plot customization
+    ax.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}", xscale='log')
+    # Plot admin
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig("./figures/fig_03_bilby_psd.png")
