@@ -1,10 +1,10 @@
 ## gla-igr-msc-project
-This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
+This is the degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
 - Editted: July 21, 2023
 
 ## Environment
-- WSL: Ubuntu
+```WSL: Ubuntu```
 
 ## Test GW params
 ```python
@@ -16,8 +16,8 @@ ang_inc, ang_pol = 0.0, 0.0
 ```
 
 ## Purpose
-- Using JAX and other packages to construct machine learning scripts
-- Use JAX with CUDA support for faster compilations
+- Using ```jax``` and other packages to construct machine learning scripts
+- Use ```jax``` with CUDA support for faster compilations
 - Use normalizing flow for template bank placement problems
 
 ## File structure
@@ -43,16 +43,16 @@ ang_inc, ang_pol = 0.0, 0.0
 </p>
 
 - GW170817 waveform gradient plot with ```jax.vmap(jax.grad())```
-- <p align="center">
+<p align="center">
   <img src="./figures/fig_02_ripple_waveform_grad.png"/>
 </p>
 
 - PSD aLIGO noise curve with ```bilby```
-- <p align="center">
+<p align="center">
   <img src="./figures/fig_03_bilby_psd.png"/>
 </p>
 
 - Fisher Information Matrix for test GW params
-- <p align="center">
+<p align="center">
   <img src="./figures/fig_04_fim.png"/>
 </p>
