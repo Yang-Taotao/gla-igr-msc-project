@@ -43,7 +43,9 @@ ang_inc, ang_pol = 0.0, 0.0
 - GW170817 waveform gradient plot with
 ```jax.vmap(jax.grad())```
 ![Gradient plot](./figures/fig_02_ripple_waveform_grad.png)
+- PSD aLIGO noise curve
 ```bilby```
 ![PSD plot](./figures/fig_03_bilby_psd.png)
+- Fisher Information Matrix for test GW params
 ```FIM```
 ![FIM plot](./figures/fig_04_fim.png)
