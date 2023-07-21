@@ -6,6 +6,15 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 ## Environment
 - WSL: Ubuntu
 
+## Test GW params
+```python
+m1, m2 = 36.0, 29.0
+s1, s2 = 0.0, 0.0
+dist_mpc = 40.0
+c_time, c_phas = 0.0, 0.0
+ang_inc, ang_pol = 0.0, 0.0
+```
+
 ## Purpose
 - Using JAX and other packages to construct machine learning scripts
 - Use JAX with CUDA support for faster compilations
@@ -32,7 +41,6 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 │   └── fig_04_fim.png
 ├── main.py
 └── notebook
-    ├── main.ipynb
     └── main_legacy.py
 ```
 
@@ -45,3 +53,5 @@ This is a degree project for *MSc in Astrophysics* at *University of Glasgow*
 ![Gradient plot](./figures/fig_02_ripple_waveform_grad.png)
 ```bilby```
 ![PSD plot](./figures/fig_03_bilby_psd.png)
+```FIM```
+![FIM plot](./figures/fig_04_fim.png)
