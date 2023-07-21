@@ -63,9 +63,9 @@ bilby_plot(data_theta_bilby)
 
 # %%
 # Section 3.b - FIM and sqrt of det of matrix 
-data_idx_test = tuple(range(9))
-data_fim = fim_mat(data_hp_grad, data_idx_test)
-data_fim_sqrt_det = fim_sqrtdet(data_fim)
+# data_idx_test = tuple(range(9))
+data_fim = fim_mat(data_hp_grad, data_idx) #data_idx_test)
+data_fim_sqrt_det = fim_sqrtdet(data_hp_grad, data_idx)
 
 # %%
 # Section 3.c - FIM plot

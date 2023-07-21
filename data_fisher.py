@@ -8,9 +8,7 @@ Created on Thu Jul 20 2023
 # %%
 # Library import
 import os
-from typing import Callable
 # Package - jax
-import jax
 import jax.numpy as jnp
 # Package - bilby
 import bilby
@@ -93,16 +91,15 @@ def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
         for i in range(n_idx)
         for j in range(n_idx)
     ]).reshape((n_idx, n_idx))
-    # Matrix - result printer
-    print(f"{'FIM - index:':<8}{theta}")
-    print(f"{result}")
     # Func return
     return result
 
 
-def fim_sqrtdet(theta):
+def fim_sqrtdet(data: jnp.ndarray, theta: tuple=(0,1)):
+    # Import results
+    matrix = fim_mat(data, theta)
     # Matrix - square root of determinanat calculator
-    result = jnp.sqrt(jnp.linalg.det(theta))
+    result = jnp.sqrt(jnp.linalg.det(matrix))
     # Print results
     print(f"{'FIM.det':<8}")
     print(f"{result}")
