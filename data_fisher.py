@@ -81,7 +81,7 @@ def fim_inner_prod(data: jnp.ndarray, theta: tuple=(0,1)):
     return result
 
 # %%
-# FIM - matrix entry
+# FIM - matrix handler
 
 
 def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
@@ -95,5 +95,10 @@ def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
     ]).reshape((n_idx, n_idx))
     # Matrix - square root of determinanat calculator
     result = jnp.sqrt(jnp.linalg.det(matrix))
+    # Matrix - result printer
+    print(f"{'FIM':<4}")
+    print(f"{matrix}")
+    print(f"{'FIM.det':<4}")
+    print(f"{result}")
     # Func return
     return result
