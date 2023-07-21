@@ -85,12 +85,14 @@ def fim_inner_prod(data: jnp.ndarray, theta: tuple=(0,1)):
 
 
 def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
-    # Build local idx array
-    idx = jnp.array(theta)
+    # Build local matrix
+    n_idx = len(theta)
     # Matrix entey parser
-    matrix = jax.vmap(fim_inner_prod, in_axes=(None, 0))(
-        data, (idx[:, None], idx[None, :])
-    )
+    matrix = jnp.array([
+        fim_inner_prod(data, (theta[i], theta[j]))
+        for i in range(n_idx)
+        for j in range(n_idx)
+    ]).reshape((n_idx, n_idx))
     # Matrix - square root of determinanat calculator
     result = jnp.sqrt(jnp.linalg.det(matrix))
     # Func return
