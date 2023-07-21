@@ -29,7 +29,7 @@ lbl_p, lbl_c, lbl_d, lbl_r, lbl_i, lbl_f, lbl_h = (
 # Ripple - theta label
 
 
-def ripple_theta_label(idx=0):
+def ripple_theta_label(idx: int=0):
     # Build label tuple
     label = (
         r"mc",
@@ -74,7 +74,7 @@ def ripple_waveform_plot(theta):
 # Ripple - grad plotter
 
 
-def ripple_grad_plot_idx(theta, idx1=0, idx2=1):
+def ripple_grad_plot_idx(theta, idx1: int=0, idx2: int=1):
     # Local variable repo
     grad_hp, grad_hc, f_sig = theta
     label1 = ripple_theta_label(idx1)
@@ -118,3 +118,18 @@ def bilby_plot(theta):
     ax.legend()
     fig.tight_layout()
     fig.savefig("./figures/fig_03_bilby_psd.png")
+
+# %%
+# FIM - matrix plotter
+
+
+def fim_plot(theta):
+    # Plot init
+    fig, ax = plt.subplots()
+    # Plotter
+    im = ax.imshow(theta, cmap='plasma')
+    # Plot customization
+    ax.figure.colorbar(im, ax=ax)
+    ax.set(xlabel="Columns", ylabel="Rows")
+    # Plot admin
+    fig.savefig("./figures/fig_04_fim.png")

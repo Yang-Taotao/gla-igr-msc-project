@@ -88,17 +88,23 @@ def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
     # Build local matrix
     n_idx = len(theta)
     # Matrix entey parser
-    matrix = jnp.array([
+    result = jnp.array([
         fim_inner_prod(data, (theta[i], theta[j]))
         for i in range(n_idx)
         for j in range(n_idx)
     ]).reshape((n_idx, n_idx))
-    # Matrix - square root of determinanat calculator
-    result = jnp.sqrt(jnp.linalg.det(matrix))
     # Matrix - result printer
-    print(f"{'FIM':<4}")
-    print(f"{matrix}")
-    print(f"{'FIM.det':<4}")
+    print(f"{'FIM - index:':<8}{theta}")
+    print(f"{result}")
+    # Func return
+    return result
+
+
+def fim_sqrtdet(theta):
+    # Matrix - square root of determinanat calculator
+    result = jnp.sqrt(jnp.linalg.det(theta))
+    # Print results
+    print(f"{'FIM.det':<8}")
     print(f"{result}")
     # Func return
     return result

@@ -17,11 +17,13 @@ from data_ripple import (
 from data_fisher import (
     fim_bilby_psd,
     fim_mat,
+    fim_sqrtdet,
 )
 from data_plotter import (
     ripple_waveform_plot,
     ripple_grad_plot_idx,
     bilby_plot,
+    fim_plot,
 )
 
 # %%
@@ -60,5 +62,11 @@ data_theta_bilby = data_freq, fim_bilby_psd(data_freq)
 bilby_plot(data_theta_bilby)
 
 # %%
-# Section 3.b - FIM sqrt det of matrix 
-data_fim_sqrt_det = fim_mat(data_hp_grad, data_idx)
+# Section 3.b - FIM and sqrt of det of matrix 
+data_idx_test = tuple(range(9))
+data_fim = fim_mat(data_hp_grad, data_idx_test)
+data_fim_sqrt_det = fim_sqrtdet(data_fim)
+
+# %%
+# Section 3.c - FIM plot
+fim_plot(data_fim)
