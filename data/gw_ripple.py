@@ -22,7 +22,7 @@ os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 # Ripple - theta build
 
 
-def ripple_theta_build(theta: tuple=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)):
+def theta_build(theta: tuple=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)):
     # Local variable repo
     m_1, m_2, s_1, s_2, dist_mpc, c_time, c_phas, ang_inc, ang_pol = theta
     # Calculate mass - chirp, ratio
@@ -38,7 +38,7 @@ def ripple_theta_build(theta: tuple=(36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 
 # Ripple - freq build
 
 
-def ripple_freq_build(theta: tuple=(24.0, 512.0, 0.5)):
+def freq_build(theta: tuple=(24.0, 512.0, 0.5)):
     # Local variable repo
     f_min, f_max, f_del = theta
     # Calculate freq - signal, reference
@@ -52,9 +52,9 @@ def ripple_freq_build(theta: tuple=(24.0, 512.0, 0.5)):
 # Ripple - file path build
 
 
-def ripple_file_path(theta: tuple, check: str):
+def file_path(theta: tuple, check: str):
     # Local variable repo
-    path_data, path_grad = "./data/data", "./data/grad"
+    path_data, path_grad = "./data_cache/data", "./data_cache/grad"
     path_hp, path_hc = "plus.npy", "cros.npy"
     # For waveform data
     if check == "data":
@@ -78,7 +78,7 @@ def ripple_file_path(theta: tuple, check: str):
 # Ripple - file manager
 
 
-def ripple_file_check(theta: tuple):
+def file_check(theta: tuple):
     # Local varibale repo
     path_hp, path_hc = theta
     # Check both local files exist
@@ -87,7 +87,7 @@ def ripple_file_check(theta: tuple):
     return result
 
 
-def ripple_file_load(theta: tuple):
+def file_load(theta: tuple):
     # Local variable repo
     path_hp, path_hc = theta
     # Load file
@@ -98,7 +98,7 @@ def ripple_file_load(theta: tuple):
     return result
 
 
-def ripple_file_save(theta: tuple):
+def file_save(theta: tuple):
     # Local variable repo
     path_hp, path_hc, data_hp, data_hc = theta
     # Save file
@@ -111,34 +111,34 @@ def ripple_file_save(theta: tuple):
 # Ripple - waveform generator
 
 
-def ripple_waveform(theta: tuple):
+def waveform(theta: tuple):
     # Local variable repo
-    f_sig, f_ref = ripple_freq_build()
-    theta_ripple = ripple_theta_build(theta)
+    f_sig, f_ref = freq_build()
+    theta_ripple = theta_build(theta)
     # Get file path
-    theta_path = ripple_file_path(theta, "data")
+    theta_path = file_path(theta, "data")
     # Pass in file data check
-    check_file = ripple_file_check(theta_path)
+    check_file = file_check(theta_path)
     # Conditional npy array access
     if check_file is True:
         # Load hp, hc
-        h_plus, h_cros = ripple_file_load(theta_path)
+        h_plus, h_cros = file_load(theta_path)
     # If no local stored file
     elif check_file is False:
         # Generate strain waveform - plus, cross
         h_plus, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(
             f_sig, theta_ripple, f_ref)
         # Save array to local
-        ripple_file_save((*theta_path, h_plus, h_cros))
+        file_save((*theta_path, h_plus, h_cros))
     # Pack ripple waveform tuple
     result = h_plus, h_cros
     # Func return
     return result
 
 
-def ripple_waveform_plus(theta: tuple, freq: jnp.ndarray):
+def waveform_plus(theta: tuple, freq: jnp.ndarray):
     # Generate strain waveform - plus, cross
-    _, f_ref = ripple_freq_build()
+    _, f_ref = freq_build()
     # Generate strain waveform - plus, cross
     h_plus, _ = IMRPhenomXAS.gen_IMRPhenomXAS_polar(
         jnp.array([freq]), theta, f_ref)
@@ -148,9 +148,9 @@ def ripple_waveform_plus(theta: tuple, freq: jnp.ndarray):
     return result
 
 
-def ripple_waveform_cros(theta: tuple, freq: jnp.ndarray):
+def waveform_cros(theta: tuple, freq: jnp.ndarray):
     # Generate strain waveform - plus, cross
-    _, f_ref = ripple_freq_build()
+    _, f_ref = freq_build()
     # Generate strain waveform - plus, cross
     _, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(
         jnp.array([freq]), theta, f_ref)
@@ -163,29 +163,29 @@ def ripple_waveform_cros(theta: tuple, freq: jnp.ndarray):
 # Ripple - gradient calculator
 
 
-def ripple_grad_vmap(func: Callable, theta: tuple):
+def grad_vmap(func: Callable, theta: tuple):
     # Local variable repo
-    f_sig, _ = ripple_freq_build()
-    theta_ripple = ripple_theta_build(theta)
+    f_sig, _ = freq_build()
+    theta_ripple = theta_build(theta)
     # Get file path
-    theta_path = ripple_file_path(theta, "grad")
+    theta_path = file_path(theta, "grad")
     # Pass in file data check
-    check_file = ripple_file_check(theta_path)
+    check_file = file_check(theta_path)
     # If local file exists
     if check_file is True:
-        if func.__name__ == "ripple_waveform_plus":
-            result, _ = ripple_file_load(theta_path)
-        elif func.__name__ == "ripple_waveform_cros":
-            _, result = ripple_file_load(theta_path)
+        if func.__name__ == "waveform_plus":
+            result, _ = file_load(theta_path)
+        elif func.__name__ == "waveform_cros":
+            _, result = file_load(theta_path)
     # If no local file
     elif check_file is False:
         # Map grad results
         result = jax.vmap(jax.grad(func), in_axes=(
             None, 0))(theta_ripple, f_sig)
         # Save to loacl
-        if func.__name__ == "ripple_waveform_plus":
+        if func.__name__ == "waveform_plus":
             jnp.save(theta_path[0], result)
-        elif func.__name__ == "ripple_waveform_cros":
+        elif func.__name__ == "waveform_cros":
             jnp.save(theta_path[1], result)
         # Report save status
         print("File: grad_vmap saved to local.")

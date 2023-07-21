@@ -9,7 +9,7 @@ Created on Thu Jul 11 2023
 # Library import
 import matplotlib.pyplot as plt
 import scienceplots
-from data_ripple import ripple_freq_build
+from data.gw_ripple import freq_build
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
 
@@ -107,7 +107,7 @@ def bilby_plot(theta):
     # Local variable repo
     freq_base, strain = theta
     # Build freq
-    freq, _ = ripple_freq_build(freq_base)
+    freq, _ = freq_build(freq_base)
     # Plot init
     fig, ax = plt.subplots()
     # Plotter

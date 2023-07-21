@@ -24,7 +24,7 @@ os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 # FIM - freq assignment
 
 
-def fim_freq(theta: tuple=(24.0, 512.0, 0.5)):
+def freq(theta: tuple=(24.0, 512.0, 0.5)):
     # Local varibale repo
     f_min, f_max, f_del = theta
     # Get calcultions
@@ -43,9 +43,9 @@ def fim_freq(theta: tuple=(24.0, 512.0, 0.5)):
 # FIM - bilby psd
 
 
-def fim_bilby_psd(theta: tuple=(24.0, 512.0, 0.5)):
+def bilby_psd(theta: tuple=(24.0, 512.0, 0.5)):
     # Local varibale repo
-    _, sampling, duration = fim_freq(theta)
+    _, sampling, duration = freq(theta)
     # Get detector
     detector = bilby.gw.detector.get_empty_interferometer("H1")
     # Get sampling freq
@@ -61,16 +61,16 @@ def fim_bilby_psd(theta: tuple=(24.0, 512.0, 0.5)):
 # FIM - inner prod
 
 
-def fim_inner_prod(data: jnp.ndarray, theta: tuple=(0,1)):
+def inner_prod(data: jnp.ndarray, theta: tuple=(0,1)):
     # Local variable repo
     idx_i, idx_j = theta
-    diff, _, _ = fim_freq()
+    diff, _, _ = freq()
     # Get grad array
     grad_i, grad_j = jnp.conj(data[:, idx_i]), data[:, idx_j]
     # Get grad product element
     grad_prod = grad_i * grad_j
     # Get psd array
-    psd = fim_bilby_psd()
+    psd = bilby_psd()
     # Get inner product - raw
     inner_prod = jnp.sum(grad_prod / psd)
     # Convert inner product to its real part
@@ -82,12 +82,12 @@ def fim_inner_prod(data: jnp.ndarray, theta: tuple=(0,1)):
 # FIM - matrix handler
 
 
-def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
+def mat(data: jnp.ndarray, theta: tuple=(0,1)):
     # Build local matrix
     n_idx = len(theta)
     # Matrix entey parser
     result = jnp.array([
-        fim_inner_prod(data, (theta[i], theta[j]))
+        inner_prod(data, (theta[i], theta[j]))
         for i in range(n_idx)
         for j in range(n_idx)
     ]).reshape((n_idx, n_idx))
@@ -95,9 +95,9 @@ def fim_mat(data: jnp.ndarray, theta: tuple=(0,1)):
     return result
 
 
-def fim_sqrtdet(data: jnp.ndarray, theta: tuple=(0,1)):
+def sqrtdet(data: jnp.ndarray, theta: tuple=(0,1)):
     # Import results
-    matrix = fim_mat(data, theta)
+    matrix = mat(data, theta)
     # Matrix - square root of determinanat calculator
     result = jnp.sqrt(jnp.linalg.det(matrix))
     # Print results
