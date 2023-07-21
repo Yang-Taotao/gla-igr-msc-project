@@ -38,10 +38,21 @@ ang_inc, ang_pol = 0.0, 0.0
 
 ## Active plots
 - GW170817 waveform generated with ```ripplegw```
-![GW170817 waveform](./figures/fig_01_ripple_waveform.png)
+<p align="center">
+  <img src="./figures/fig_01_ripple_waveform.png"/>
+</p>
+
 - GW170817 waveform gradient plot with ```jax.vmap(jax.grad())```
-![Gradient plot](./figures/fig_02_ripple_waveform_grad.png)
+- <p align="center">
+  <img src="./figures/fig_02_ripple_waveform_grad.png"/>
+</p>
+
 - PSD aLIGO noise curve with ```bilby```
-![PSD plot](./figures/fig_03_bilby_psd.png)
-- Fisher Information Matrix for test GW params 
-![FIM plot](./figures/fig_04_fim.png)
+- <p align="center">
+  <img src="./figures/fig_03_bilby_psd.png"/>
+</p>
+
+- Fisher Information Matrix for test GW params
+- <p align="center">
+  <img src="./figures/fig_04_fim.png"/>
+</p>
