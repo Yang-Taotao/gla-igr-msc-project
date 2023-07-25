@@ -1,7 +1,7 @@
 ## gla-igr-msc-project
 This is the degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
-- Editted: July 24, 2023
+- Editted: July 25, 2023
 
 ## Environment
 ```WSL: Ubuntu```
