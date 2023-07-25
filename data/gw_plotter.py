@@ -7,9 +7,9 @@ Created on Thu Jul 11 2023
 """
 # %%
 # Library import
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import scienceplots
-from data.gw_ripple import freq_build
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
 
@@ -29,7 +29,7 @@ lbl_p, lbl_c, lbl_d, lbl_r, lbl_i, lbl_f, lbl_h = (
 # Ripple - theta label
 
 
-def ripple_theta_label(idx: int=0):
+def ripple_theta_label(idx: int):
     # Build label tuple
     label = (
         r"mc",
@@ -42,18 +42,18 @@ def ripple_theta_label(idx: int=0):
         r"ang_inc",
         r"ang_pol",
     )
-    # Build result string
-    result = label[idx]
-    # Func return
-    return result
+    # Return result string
+    return label[idx]
 
 # %%
 # Ripple - waveform plotter
 
 
-def ripple_waveform_plot(theta):
-    # Local variable repo
-    h_plus, h_cros, f_sig = theta
+def ripple_waveform_plot(
+        h_plus: jnp.ndarray, 
+        h_cros: jnp.ndarray, 
+        f_sig: jnp.ndarray,
+    ):
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
@@ -64,19 +64,24 @@ def ripple_waveform_plot(theta):
     # Plot customization
     ax1.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}{lbl_p}")
     ax2.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}{lbl_c}")
-    # Plot admin
     ax1.legend()
     ax2.legend()
     fig.tight_layout()
+    # Plot admin
     fig.savefig("./figures/fig_01_ripple_waveform.png")
 
 # %%
 # Ripple - grad plotter
 
 
-def ripple_grad_plot_idx(theta, idx1: int=0, idx2: int=1):
+def ripple_grad_plot_idx(
+        grad_hp: jnp.ndarray, 
+        grad_hc: jnp.ndarray, 
+        f_sig: jnp.ndarray, 
+        idx1: int, 
+        idx2: int,
+    ):
     # Local variable repo
-    grad_hp, grad_hc, f_sig = theta
     label1 = ripple_theta_label(idx1)
     label2 = ripple_theta_label(idx2)
     # Plot init
@@ -93,43 +98,117 @@ def ripple_grad_plot_idx(theta, idx1: int=0, idx2: int=1):
     # Plot customization
     ax1.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_d}/{lbl_d}{label1}")
     ax2.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_d}/{lbl_d}{label2}")
-    # Plot admin
     ax1.legend()
     ax2.legend()
     fig.tight_layout()
+    # Plot admin
     fig.savefig("./figures/fig_02_ripple_waveform_grad.png")
 
 # %%
 # Bilby - psd plotter
 
 
-def bilby_plot(theta):
-    # Local variable repo
-    freq_base, strain = theta
-    # Build freq
-    freq, _ = freq_build(freq_base)
+def bilby_plot(
+        f_sig: jnp.ndarray, 
+        data: jnp.ndarray,
+    ):
     # Plot init
     fig, ax = plt.subplots()
     # Plotter
-    ax.plot(freq, strain, label="H1 PSD", alpha=0.5)
+    ax.plot(f_sig, data, label="H1 PSD", alpha=0.5)
     # Plot customization
     ax.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}", xscale='log')
-    # Plot admin
     ax.legend()
     fig.tight_layout()
+    # Plot admin
     fig.savefig("./figures/fig_03_bilby_psd.png")
 
 # %%
 # FIM - matrix plotter
 
 
-def fim_plot(theta):
+def fim_plot(data: jnp.ndarray):
     # Plot init
     fig, ax = plt.subplots()
     # Plotter
-    im = ax.imshow(theta, cmap='plasma')
+    im = ax.imshow(data, cmap='plasma')
     # Plot customization
     ax.figure.colorbar(im, ax=ax)
     ax.set(xlabel="Columns", ylabel="Rows")
     # Plot admin
     fig.savefig("./figures/fig_04_fim.png")
+
+# %%
+# FIM - hp mc mr
+
+
+def fim_param_plot(
+        data_fim_hp_repo: jnp.ndarray, 
+        data_fim_hc_repo: jnp.ndarray, 
+        data_mc_repo: jnp.ndarray, 
+        data_mr_repo: jnp.ndarray,
+    ):
+    # Sort data - get idx
+    idx_hp_sort = jnp.argsort(data_fim_hp_repo)
+    idx_hc_sort = jnp.argsort(data_fim_hc_repo)
+    # Sort data
+    mc_hp_repo, mr_hp_repo, fim_hp_repo = (
+        data_mc_repo[idx_hp_sort],
+        data_mr_repo[idx_hp_sort],
+        data_fim_hp_repo[idx_hp_sort],
+    )
+    mc_hc_repo, mr_hc_repo, fim_hc_repo = (
+        data_mc_repo[idx_hc_sort],
+        data_mr_repo[idx_hc_sort],
+        data_fim_hc_repo[idx_hc_sort],
+    )
+    # Plot init
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(4, 1)
+    # Plotter
+    ax1.plot(mc_hp_repo, fim_hp_repo, label="Mass - chirp", alpha=0.5)
+    ax2.plot(mr_hp_repo, fim_hp_repo, label="Mass - ratio", alpha=0.5)
+    ax3.plot(mc_hc_repo, fim_hc_repo, label="Mass - chirp", alpha=0.5)
+    ax4.plot(mr_hc_repo, fim_hc_repo, label="Mass - ratio", alpha=0.5)
+    # Plot custmoization
+    ax1.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det", title="fim_hp-mc")
+    ax2.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det", title="fim_hp-mr")
+    ax3.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det", title="fim_hc-mc")
+    ax4.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det", title="fim_hc-mr")
+    ax1.legend()
+    ax2.legend()
+    ax3.legend()
+    ax4.legend()
+    # Plot admin
+    fig.tight_layout()
+    fig.savefig("./figures/fig_05_fim_hp_mc_mr.png")
+
+# %%
+# FIM - hp mc mr contour
+
+
+def fim_contour_plot(
+        data_fim_hp_repo: jnp.ndarray, 
+        data_fim_hc_repo: jnp.ndarray, 
+        data_mc_repo: jnp.ndarray, 
+        data_mr_repo: jnp.ndarray,
+    ):
+    # Reshape data
+    mc_repo_rs, mr_repo_rs, fim_hp_repo_rs, fim_hc_repo_rs = (
+        data_mc_repo.reshape((5, 5)),
+        data_mr_repo.reshape((5, 5)),
+        data_fim_hp_repo.reshape((5, 5)),
+        data_fim_hc_repo.reshape((5, 5)),
+    )
+    # Plot init
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+    # Plotter
+    cs1 = ax1.contourf(mc_repo_rs, mr_repo_rs, fim_hp_repo_rs)
+    cs2 = ax2.contourf(mc_repo_rs, mr_repo_rs, fim_hc_repo_rs)
+    # Plot customization
+    ax1.set(xlabel="Mass - chirp", ylabel="Mass - ratio", title="FIM-sqrtdet grad hp")
+    ax2.set(xlabel="Mass - chirp", ylabel="Mass - ratio", title="FIM-sqrtdet grad hc")
+    plt.colorbar(cs1, ax=ax1)
+    plt.colorbar(cs2, ax=ax2)
+    # Plot admin
+    fig.tight_layout()
+    fig.savefig("./figures/fig_06_fim_mc_mr_contour.png")

@@ -1,7 +1,7 @@
 ## gla-igr-msc-project
 This is the degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
-- Editted: July 21, 2023
+- Editted: July 24, 2023
 
 ## Environment
 ```WSL: Ubuntu```
@@ -23,17 +23,21 @@ ang_inc, ang_pol = 0.0, 0.0
 ## File structure
 ```bash
 .
+├── LICENSE
 ├── README.md
 ├── data
 │   ├── __init__.py
 │   ├── gw_fisher.py
 │   ├── gw_plotter.py
 │   └── gw_ripple.py
-├── data_cache
 ├── figures
+│   ├── fig_01_ripple_waveform.png
+│   ├── fig_02_ripple_waveform_grad.png
+│   ├── fig_03_bilby_psd.png
+│   ├── fig_04_fim.png
+│   ├── fig_05_fim_hp_mc_mr.png
+│   └── fig_06_fim_mc_mr_contour.png
 ├── main.py
-└── notebook
-    └── main_legacy.py
 ```
 
 ## Active plots
@@ -55,4 +59,14 @@ ang_inc, ang_pol = 0.0, 0.0
 - Fisher Information Matrix for test GW params
 <p align="center">
   <img src="./figures/fig_04_fim.png"/>
+</p>
+
+- Fisher Information Matrix wrt mc and mr
+<p align="center">
+  <img src="./figures/fig_05_fim_hp_mc_mr.png"/>
+</p>
+
+- Fisher Information Matrix contour plot
+<p align="center">
+  <img src="./figures/fig_06_fim_mc_mr_contour.png"/>
 </p>
