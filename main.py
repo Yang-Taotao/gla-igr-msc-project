@@ -116,4 +116,5 @@ data_mr_repo = jnp.array([item for item in data_mr_repo])
 # %%
 gw_plotter.fim_param_plot(data_fim_hp_repo, data_fim_hc_repo, data_mc_repo, data_mr_repo)
 gw_plotter.fim_contour_plot(data_fim_hp_repo, data_fim_hc_repo, data_mc_repo, data_mr_repo)
+
 # %%

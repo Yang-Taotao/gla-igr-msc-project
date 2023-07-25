@@ -163,7 +163,7 @@ def fim_param_plot(
         data_fim_hc_repo[idx_hc_sort],
     )
     # Plot init
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(4, 1)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     # Plotter
     ax1.plot(mc_hp_repo, fim_hp_repo, label="Mass - chirp", alpha=0.5)
     ax2.plot(mr_hp_repo, fim_hp_repo, label="Mass - ratio", alpha=0.5)
