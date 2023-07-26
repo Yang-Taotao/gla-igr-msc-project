@@ -1,8 +1,7 @@
 """
-This is the fisher information matrix handler script for MSc project.
+Fisher Information Matrix calculator.
 
 Created on Thu Jul 20 2023
-
 @author: Yang-Taotao
 """
 # %%
@@ -10,84 +9,53 @@ Created on Thu Jul 20 2023
 import os
 # Package - jax
 import jax.numpy as jnp
-# Package - bilby
-import bilby
+# Custom config import
+from data import gw_config
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 
 # %%
-# Notes
-# consider just h+ for inner product for now
-# construct FIM with mc and mr -> 2x2 mat for now
-
-# %%
-# FIM - freq assignment
-
-
-def fim_freq(theta: tuple=(24.0, 512.0, 0.5)):
-    # Local varibale repo
-    f_min, f_max, f_del = theta
-    # Get calcultions
-    diff, sampling, duration = (
-        f_max - f_min,
-        (f_max - f_min) / f_del,
-        1 / f_del,
-    )
-    # Return result tuple
-    return diff, sampling, duration
-
-# %%
-# FIM - bilby psd
-
-
-def bilby_psd(freq: tuple):
-    # Local varibale repo
-    _, sampling, duration = fim_freq(freq)
-    # Get detector
-    detector = bilby.gw.detector.get_empty_interferometer("H1")
-    # Get sampling freq
-    detector.sampling_frequency = sampling
-    # Get dectector duration
-    detector.duration = duration
-    # Return psd as func result
-    return detector.power_spectral_density_array[1:]
+# Config import
+# Freq - signal, reference
+f_sig, f_ref = gw_config.f_sig, gw_config.f_ref
+# Freq - difference, sampling, duration
+f_diff, f_samp, f_dura = gw_config.f_diff, gw_config.f_samp, gw_config.f_dura
+# Freq - PSD
+f_psd = gw_config.f_psd
 
 # %%
 # FIM - inner prod
 
 
-def inner_prod(data: jnp.ndarray, freq: tuple, theta: tuple):
+def inner_prod(data: jnp.ndarray, idx: tuple):
     # Local variable repo
-    idx_i, idx_j = theta
-    diff, _, _ = fim_freq(freq)
+    idx_i, idx_j = idx
     # Get grad array
     grad_i, grad_j = jnp.conj(data[:, idx_i]), data[:, idx_j]
     # Get grad product element
     grad_prod = grad_i * grad_j
-    # Get psd array
-    psd = bilby_psd(freq)
     # Get inner product - raw
-    inner_prod = jnp.sum(grad_prod / psd)
+    inner_prod = jnp.sum(grad_prod / f_psd)
     # Return inner product reult - real part
-    return 4 * diff * jnp.real(inner_prod)
+    return 4 * f_diff * jnp.real(inner_prod)
 
 # %%
 # FIM - matrix handler
 
 
-def mat(data: jnp.ndarray, freq: tuple, theta: tuple):
+def build_fim(data: jnp.ndarray, idx: tuple):
     # Build local matrix
-    n_idx = len(theta)
+    n_idx = len(idx)
     # Return matrix entey parser
     return jnp.array([
-        inner_prod(data, freq, (theta[i], theta[j]))
+        inner_prod(data, (idx[i], idx[j]))
         for i in range(n_idx)
         for j in range(n_idx)
     ]).reshape((n_idx, n_idx))
 
 
-def sqrtdet(data: jnp.ndarray, freq: tuple, theta: tuple):
+def sqrtdet_fim(data: jnp.ndarray, idx: tuple):
     # Import results
-    matrix = mat(data, freq, theta)
+    matrix = build_fim(data, idx)
     # Return sqrt(det(FIM))
     return jnp.sqrt(jnp.linalg.det(matrix))

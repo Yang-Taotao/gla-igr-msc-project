@@ -8,3 +8,4 @@ Created on Thu Jul 21 2023
 from .gw_ripple import *
 from .gw_fisher import *
 from .gw_plotter import *
+from .gw_config import *

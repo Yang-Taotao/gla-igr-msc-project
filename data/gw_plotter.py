@@ -1,8 +1,7 @@
 """
-This is the plotter script for MSc project.
+Plotter function repo.
 
 Created on Thu Jul 11 2023
-
 @author: Yang-Taotao
 """
 # %%
@@ -108,10 +107,7 @@ def ripple_grad_plot_idx(
 # Bilby - psd plotter
 
 
-def bilby_plot(
-        f_sig: jnp.ndarray, 
-        data: jnp.ndarray,
-    ):
+def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
     # Plot init
     fig, ax = plt.subplots()
     # Plotter
@@ -143,32 +139,22 @@ def fim_plot(data: jnp.ndarray):
 
 
 def fim_param_plot(
-        data_fim_hp_repo: jnp.ndarray, 
-        data_fim_hc_repo: jnp.ndarray, 
-        data_mc_repo: jnp.ndarray, 
-        data_mr_repo: jnp.ndarray,
+        fim_hp_repo: jnp.ndarray, 
+        fim_hc_repo: jnp.ndarray, 
+        mc_repo: jnp.ndarray, 
+        mr_repo: jnp.ndarray,
     ):
-    # Sort data - get idx
-    idx_hp_sort = jnp.argsort(data_fim_hp_repo)
-    idx_hc_sort = jnp.argsort(data_fim_hc_repo)
-    # Sort data
-    mc_hp_repo, mr_hp_repo, fim_hp_repo = (
-        data_mc_repo[idx_hp_sort],
-        data_mr_repo[idx_hp_sort],
-        data_fim_hp_repo[idx_hp_sort],
-    )
-    mc_hc_repo, mr_hc_repo, fim_hc_repo = (
-        data_mc_repo[idx_hc_sort],
-        data_mr_repo[idx_hc_sort],
-        data_fim_hc_repo[idx_hc_sort],
-    )
+    # Grid - mc, mr
+    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
+    # Flatten - mc, mr
+    mc_data, mr_data = mc_grid.flatten(), mr_grid.flatten()
     # Plot init
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     # Plotter
-    ax1.plot(mc_hp_repo, fim_hp_repo, label="Mass - chirp", alpha=0.5)
-    ax2.plot(mr_hp_repo, fim_hp_repo, label="Mass - ratio", alpha=0.5)
-    ax3.plot(mc_hc_repo, fim_hc_repo, label="Mass - chirp", alpha=0.5)
-    ax4.plot(mr_hc_repo, fim_hc_repo, label="Mass - ratio", alpha=0.5)
+    ax1.scatter(mc_data, fim_hp_repo, label="Mass - chirp", alpha=0.5, s=10)
+    ax2.scatter(mr_data, fim_hp_repo, label="Mass - ratio", alpha=0.5, s=10)
+    ax3.scatter(mc_data, fim_hc_repo, label="Mass - chirp", alpha=0.5, s=10)
+    ax4.scatter(mr_data, fim_hc_repo, label="Mass - ratio", alpha=0.5, s=10)
     # Plot custmoization
     ax1.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det", title="fim_hp-mc")
     ax2.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det", title="fim_hp-mr")
@@ -187,23 +173,21 @@ def fim_param_plot(
 
 
 def fim_contour_plot(
-        data_fim_hp_repo: jnp.ndarray, 
-        data_fim_hc_repo: jnp.ndarray, 
-        data_mc_repo: jnp.ndarray, 
-        data_mr_repo: jnp.ndarray,
+        fim_hp_repo: jnp.ndarray, 
+        fim_hc_repo: jnp.ndarray, 
+        mc_repo: jnp.ndarray, 
+        mr_repo: jnp.ndarray,
     ):
-    # Reshape data
-    mc_repo_rs, mr_repo_rs, fim_hp_repo_rs, fim_hc_repo_rs = (
-        data_mc_repo.reshape((5, 5)),
-        data_mr_repo.reshape((5, 5)),
-        data_fim_hp_repo.reshape((5, 5)),
-        data_fim_hc_repo.reshape((5, 5)),
-    )
+    # Grid - mc, mr
+    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
+    # Plot data process
+    plotmat_hp = fim_hp_repo.reshape((mc_repo.shape[-1], mr_repo.shape[-1]))
+    plotmat_hc = fim_hc_repo.reshape((mc_repo.shape[-1], mr_repo.shape[-1]))
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
-    cs1 = ax1.contourf(mc_repo_rs, mr_repo_rs, fim_hp_repo_rs)
-    cs2 = ax2.contourf(mc_repo_rs, mr_repo_rs, fim_hc_repo_rs)
+    cs1 = ax1.contourf(mc_grid, mr_grid, plotmat_hp, alpha=0.66)
+    cs2 = ax2.contourf(mc_grid, mr_grid, plotmat_hc, alpha=0.66)
     # Plot customization
     ax1.set(xlabel="Mass - chirp", ylabel="Mass - ratio", title="FIM-sqrtdet grad hp")
     ax2.set(xlabel="Mass - chirp", ylabel="Mass - ratio", title="FIM-sqrtdet grad hc")
