@@ -35,9 +35,9 @@ def inner_prod(data: jnp.ndarray, idx: tuple):
     # Get grad product element
     grad_prod = grad_i * grad_j
     # Get inner product - raw
-    inner_prod = jnp.sum(grad_prod / f_psd)
+    inner_product = jnp.sum(grad_prod / f_psd)
     # Return inner product reult - real part
-    return 4 * f_diff * jnp.real(inner_prod)
+    return 4 * f_diff * jnp.real(inner_product)
 
 # %%
 # FIM - matrix handler

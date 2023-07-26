@@ -49,10 +49,10 @@ def ripple_theta_label(idx: int):
 
 
 def ripple_waveform_plot(
-        h_plus: jnp.ndarray, 
-        h_cros: jnp.ndarray, 
-        f_sig: jnp.ndarray,
-    ):
+    h_plus: jnp.ndarray,
+    h_cros: jnp.ndarray,
+    f_sig: jnp.ndarray,
+):
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
@@ -74,12 +74,12 @@ def ripple_waveform_plot(
 
 
 def ripple_grad_plot_idx(
-        grad_hp: jnp.ndarray, 
-        grad_hc: jnp.ndarray, 
-        f_sig: jnp.ndarray, 
-        idx1: int, 
-        idx2: int,
-    ):
+    grad_hp: jnp.ndarray,
+    grad_hc: jnp.ndarray,
+    f_sig: jnp.ndarray,
+    idx1: int,
+    idx2: int,
+):
     # Local variable repo
     label1 = ripple_theta_label(idx1)
     label2 = ripple_theta_label(idx2)
@@ -139,11 +139,11 @@ def fim_plot(data: jnp.ndarray):
 
 
 def fim_param_plot(
-        fim_hp_repo: jnp.ndarray, 
-        fim_hc_repo: jnp.ndarray, 
-        mc_repo: jnp.ndarray, 
-        mr_repo: jnp.ndarray,
-    ):
+    fim_hp_repo: jnp.ndarray,
+    fim_hc_repo: jnp.ndarray,
+    mc_repo: jnp.ndarray,
+    mr_repo: jnp.ndarray,
+):
     # Grid - mc, mr
     mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
     # Flatten - mc, mr
@@ -156,10 +156,14 @@ def fim_param_plot(
     ax3.scatter(mc_data, fim_hc_repo, label="Mass - chirp", alpha=0.5, s=10)
     ax4.scatter(mr_data, fim_hc_repo, label="Mass - ratio", alpha=0.5, s=10)
     # Plot custmoization
-    ax1.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det", title="fim_hp-mc")
-    ax2.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det", title="fim_hp-mr")
-    ax3.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det", title="fim_hc-mc")
-    ax4.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det", title="fim_hc-mr")
+    ax1.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det",
+            title="fim_hp-mc", xscale="log", yscale="log")
+    ax2.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det",
+            title="fim_hp-mr", xscale="log", yscale="log")
+    ax3.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det",
+            title="fim_hc-mc", xscale="log", yscale="log")
+    ax4.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det",
+            title="fim_hc-mr", xscale="log", yscale="log")
     ax1.legend()
     ax2.legend()
     ax3.legend()
@@ -173,11 +177,11 @@ def fim_param_plot(
 
 
 def fim_contour_plot(
-        fim_hp_repo: jnp.ndarray, 
-        fim_hc_repo: jnp.ndarray, 
-        mc_repo: jnp.ndarray, 
-        mr_repo: jnp.ndarray,
-    ):
+    fim_hp_repo: jnp.ndarray,
+    fim_hc_repo: jnp.ndarray,
+    mc_repo: jnp.ndarray,
+    mr_repo: jnp.ndarray,
+):
     # Grid - mc, mr
     mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
     # Plot data process
@@ -186,11 +190,13 @@ def fim_contour_plot(
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
-    cs1 = ax1.contourf(mc_grid, mr_grid, plotmat_hp, alpha=0.66)
-    cs2 = ax2.contourf(mc_grid, mr_grid, plotmat_hc, alpha=0.66)
+    cs1 = ax1.contourf(mc_grid, mr_grid, plotmat_hp, alpha=0.66, levels=100)
+    cs2 = ax2.contourf(mc_grid, mr_grid, plotmat_hc, alpha=0.66, levels=100)
     # Plot customization
-    ax1.set(xlabel="Mass - chirp", ylabel="Mass - ratio", title="FIM-sqrtdet grad hp")
-    ax2.set(xlabel="Mass - chirp", ylabel="Mass - ratio", title="FIM-sqrtdet grad hc")
+    ax1.set(xlabel="Mass - chirp", ylabel="Mass - ratio",
+            title="FIM-sqrtdet grad hp", xscale="log", yscale="log")
+    ax2.set(xlabel="Mass - chirp", ylabel="Mass - ratio",
+            title="FIM-sqrtdet grad hc", xscale="log", yscale="log")
     plt.colorbar(cs1, ax=ax1)
     plt.colorbar(cs2, ax=ax2)
     # Plot admin

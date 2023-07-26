@@ -30,7 +30,7 @@ f_sig, f_ref = gw_config.f_sig, gw_config.f_ref
 def waveform(theta: jnp.ndarray):
     # Generate and return strain waveform - plus, cross
     return IMRPhenomXAS.gen_IMRPhenomXAS_polar(
-            f_sig, theta, f_ref)
+        f_sig, theta, f_ref)
 
 
 def waveform_plus(theta: jnp.ndarray, freq: jnp.ndarray):
