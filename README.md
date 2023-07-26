@@ -43,6 +43,7 @@ ang_inc, ang_pol = 0.0, 0.0
 │   ├── fig_04_fim.png
 │   ├── fig_05_fim_hp_mc_mr.png
 │   └── fig_06_fim_mc_mr_contour.png
+├── main.ipynb
 └── main.py
 ```
 
