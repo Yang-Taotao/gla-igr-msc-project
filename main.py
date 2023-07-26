@@ -7,114 +7,57 @@ Created on Thu Jul 11 2023
 """
 # %%
 # Section 0 - Library import
+import jax
 import jax.numpy as jnp
-from data import gw_ripple, gw_fisher, gw_plotter
+from data import gw_ripple, gw_fisher, gw_plotter, gw_config
 
 # %%
-# Section 1.a -  Define GW data theta
-# m1, m2, s1, s2, dist_mpc, c_time, c_phas, ang_inc, ang_pol
-data_theta = (36.0, 29.0, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0)
-# f_min, f_max, f_del
-data_freq = (24.0, 512.0, 0.5)
+# Section 1 - Config result import
+# Freq - signal, reference, PSD
+f_sig, f_ref, f_psd = gw_config.f_sig, gw_config.f_ref, gw_config.f_psd
+# Repo - mc, mr, theta
+mc_repo, mr_repo, theta_repo = gw_config.mc_repo, gw_config.mr_repo, gw_config.theta_repo
 
 # %%
-# Section 1.b -  Generate GW data
-# t~17.8s first compile
-f_sig, f_ref = gw_ripple.freq_build(data_freq)
-data_hp, data_hc = gw_ripple.waveform(data_theta)
+# Section 2.a -  Define GW Mock data theta
+# mc, mr, s1, s2, dist_mpc, c_time, c_phas, ang_inc, ang_pol
+mock_waveform_theta = jnp.array([28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
+mock_theta = jnp.array([mock_waveform_theta])
 
 # %%
-# Section 1.c -  Plot GW data - GW170817
-gw_plotter.ripple_waveform_plot(data_hp, data_hc, f_sig)
+# Section 2.b -  Mock GW data generate - waveform, grad, plots
+# t ~ 4min43.0s - first compile
+mock_hp, mock_hc = gw_ripple.waveform(mock_waveform_theta)
+mock_hp_grad, mock_hc_grad = gw_ripple.grad_plus(mock_theta)[0], gw_ripple.grad_cros(mock_theta)[0]
+mock_idx = jnp.array([0, 1])                                     
+gw_plotter.ripple_waveform_plot(mock_hp, mock_hc, f_sig)
+gw_plotter.ripple_grad_plot_idx(mock_hp_grad, mock_hc_grad, f_sig, *mock_idx)
 
 # %%
-# Section 2.a -  Generate mapped grad data
-# t~178.0s first compile
-data_hp_grad = gw_ripple.grad_plus(data_theta)
-data_hc_grad = gw_ripple.grad_cros(data_theta)
+# Section 2.c - Mock GW data generate - FIM, sqrt.det.fim, plots
+data_idx = jnp.arange(len(mock_waveform_theta))
+mock_fim = gw_fisher.build_fim(mock_hp_grad, data_idx)
+mock_fim_sqrtdet = gw_fisher.sqrtdet_fim(mock_hp_grad, mock_idx)
+gw_plotter.fim_plot(mock_fim)
+gw_plotter.bilby_plot(f_sig, f_psd)
 
 # %%
-# Section 2.b -  Plot GW data - grad wrt data_idx
-data_idx = 0, 1
-gw_plotter.ripple_grad_plot_idx(data_hp_grad, data_hc_grad, f_sig, *data_idx)
+# Section 3.a - GW data generation - mc, mr - grad, sqrt.det.fim, plots
+# t ~ 5min08.5s - shape(150, 976, 9) - t ~ 100ms per grad array of 976 entries
+data_hp_grad_repo, data_hc_grad_repo = gw_ripple.grad_plus(theta_repo), gw_ripple.grad_cros(theta_repo)
 
 # %%
-# Section 3.a - FIM psd plot
-gw_plotter.bilby_plot(f_sig, gw_fisher.bilby_psd(data_freq))
-
-# %%
-# Section 3.b - FIM and sqrt of det of matrix 
-data_idx_test = tuple(range(9))
-data_fim = gw_fisher.mat(data_hp_grad, data_freq, data_idx_test)
-data_fim_sqrt_det = gw_fisher.sqrtdet(data_hp_grad, data_freq, data_idx)
-
-# %%
-# Section 3.c - FIM plot
-gw_plotter.fim_plot(data_fim)
-
-
-#======================================================================#
-#======================================================================#
-#======================================================================#
-
-# %%
-# Section 4.a - FIM sqrtdet wrt mc eta
-# t~20.5s - unoptimized
-# Define mass repo config
-data_mass_config = (1.0, 101.0, 10.0)
-# Get base ripple theta
-data_theta_ripple_repo = gw_ripple.theta_m1_m2_repo(data_mass_config)
-# Get calc ripple theta
-data_theta_ripple_calc_repo = [
-    gw_ripple.theta_build(theta)
-    for theta in data_theta_ripple_repo
-]
-# Get mc, eta from calc ripple theta
-data_mc_repo = [
-    data[0]
-    for data in data_theta_ripple_calc_repo
-]
-data_mr_repo = [
-   data[1]
-    for data in data_theta_ripple_calc_repo
-]
-# Generate waveform repo for hp
-data_waveform_repo = [
-    gw_ripple.waveform(theta)
-    for theta in data_theta_ripple_repo
-]
-
-# %%
-# Generate grad waveform repo for hp and hc
-# t ~188.4s for 100x waveform grad - not optimized
-data_hp_grad_repo = [
-    gw_ripple.grad_plus(theta)
-    for theta in data_theta_ripple_repo
-]
-data_hc_grad_repo = [
-    gw_ripple.grad_cros(theta)
-    for theta in data_theta_ripple_repo
-]
-
-# %%
-# Generate FIM sqrt det repo - hp
-data_fim_sqrtdet_hp_repo = [
-    gw_fisher.sqrtdet(hp_grad, data_freq, data_idx)
-    for hp_grad in data_hp_grad_repo
-]
-# Generate FIM sqrt det repo - hc
-data_fim_sqrtdet_hc_repo = [
-    gw_fisher.sqrtdet(hc_grad, data_freq, data_idx)
-    for hc_grad in data_hc_grad_repo
-]
-# %%
-data_fim_hp_repo = jnp.array([item for item in data_fim_sqrtdet_hp_repo])
-data_fim_hc_repo = jnp.array([item for item in data_fim_sqrtdet_hc_repo])
-data_mc_repo = jnp.array([item for item in data_mc_repo])
-data_mr_repo = jnp.array([item for item in data_mr_repo])
-
-# %%
-gw_plotter.fim_param_plot(data_fim_hp_repo, data_fim_hc_repo, data_mc_repo, data_mr_repo)
-gw_plotter.fim_contour_plot(data_fim_hp_repo, data_fim_hc_repo, data_mc_repo, data_mr_repo)
-
+# Section 3.b
+# shape(150, 1)
+data_fim_hp_repo = jnp.array([
+    [gw_fisher.sqrtdet_fim(data_hp_grad_repo[i, :, :], mock_idx)]
+    for i in range(data_hp_grad_repo.shape[0])
+])
+# shape(150, 1)
+data_fim_hc_repo = jnp.array([
+    [gw_fisher.sqrtdet_fim(data_hc_grad_repo[i, :, :], mock_idx)]
+    for i in range(data_hc_grad_repo.shape[0])
+])
+gw_plotter.fim_param_plot(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
+gw_plotter.fim_contour_plot(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
 # %%
