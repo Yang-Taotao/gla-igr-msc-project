@@ -18,9 +18,6 @@ mock_waveform_theta = jnp.array(
     [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
 mock_theta = jnp.tile(mock_waveform_theta, (theta_repo.shape[0], 1))
 
-print(mc_repo.shape)
-print(mr_repo.shape)
-print(f"Total shape: {theta_repo.shape}")
 # %%
 # Section 1.b -  Mock GW data generate - waveform, grad, plots
 # t ~ 4min06.9s - first compile
@@ -34,7 +31,7 @@ gw_plotter.ripple_grad_plot_idx(mock_hp_grad, mock_hc_grad, f_sig, *mock_idx)
 # %%
 # Section 1.c - Mock GW data generate - FIM, sqrt.det.fim, plots
 data_idx = jnp.arange(len(mock_waveform_theta))
-mock_fim = gw_fisher.build_fim(mock_hp_grad, data_idx)
+mock_fim = gw_fisher.build_fim(mock_hp_grad, mock_idx)
 mock_fim_sqrtdet = gw_fisher.sqrtdet_fim(mock_hp_grad, mock_idx)
 gw_plotter.fim_plot(mock_fim)
 gw_plotter.bilby_plot(f_sig, f_psd)
