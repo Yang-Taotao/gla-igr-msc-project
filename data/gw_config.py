@@ -14,11 +14,11 @@ import bilby
 # Config setup
 # ============================================================ #
 # Frequency - min, max, step
-f_min, f_max, f_del = 24.0, 512.0, 0.5
+f_min, f_max, f_del = 24.0, 512.0, 0.50
 # Chirp mass - min, max, step
-mc_min, mc_max, mc_del = 1.0, 26.0, 0.5
+mc_min, mc_max, mc_del = 6.00, 31.0, 0.5
 # Mass ratio - min, max, step
-mr_min, mr_max, mr_del = 0.01, 0.26, 0.01
+mr_min, mr_max, mr_del = 0.06, 0.26, 0.01
 # Base theta - s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
 theta_base = jnp.array([0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
 # ============================================================ #

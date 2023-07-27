@@ -16,11 +16,14 @@ from data.gw_config import f_sig, f_psd, mc_repo, mr_repo, theta_repo
 # mc, mr, s1, s2, dist_mpc, c_time, c_phas, ang_inc, ang_pol
 mock_waveform_theta = jnp.array(
     [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
-mock_theta = jnp.array([mock_waveform_theta])
+mock_theta = jnp.tile(mock_waveform_theta, (theta_repo.shape[0], 1))
 
+print(mc_repo.shape)
+print(mr_repo.shape)
+print(f"Total shape: {theta_repo.shape}")
 # %%
 # Section 1.b -  Mock GW data generate - waveform, grad, plots
-# t ~ 4min43.0s - first compile
+# t ~ 4min06.9s - first compile
 mock_hp, mock_hc = gw_ripple.waveform(mock_waveform_theta)
 mock_hp_grad, mock_hc_grad = gw_ripple.grad_plus(
     mock_theta)[0], gw_ripple.grad_cros(mock_theta)[0]
@@ -38,8 +41,7 @@ gw_plotter.bilby_plot(f_sig, f_psd)
 
 # %%
 # Section 2.a - GW data generation - mc, mr - grad, sqrt.det.fim, plots
-# t ~ 5min08.5s - shape(0150, 976, 9)
-# t ~ 5min08.5s - shape(1250, 976, 9)
+# t ~ 0.8s
 data_hp_grad_repo, data_hc_grad_repo = gw_ripple.grad_plus(
     theta_repo), gw_ripple.grad_cros(theta_repo)
 

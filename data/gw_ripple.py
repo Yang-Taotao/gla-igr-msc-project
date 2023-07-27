@@ -13,14 +13,9 @@ import jax.numpy as jnp
 # Package - ripple
 from ripple.waveforms import IMRPhenomXAS
 # Custom config import
-from data import gw_config
+from data.gw_config import f_sig, f_ref
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
-
-# %%
-# Config import
-# Freq - signal, reference
-f_sig, f_ref = gw_config.f_sig, gw_config.f_ref
 
 # %%
 # Ripple - waveform generator

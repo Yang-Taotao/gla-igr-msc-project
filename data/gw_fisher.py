@@ -10,18 +10,9 @@ import os
 # Package - jax
 import jax.numpy as jnp
 # Custom config import
-from data import gw_config
+from data.gw_config import f_diff, f_psd
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
-
-# %%
-# Config import
-# Freq - signal, reference
-f_sig, f_ref = gw_config.f_sig, gw_config.f_ref
-# Freq - difference, sampling, duration
-f_diff, f_samp, f_dura = gw_config.f_diff, gw_config.f_samp, gw_config.f_dura
-# Freq - PSD
-f_psd = gw_config.f_psd
 
 # %%
 # FIM - inner prod

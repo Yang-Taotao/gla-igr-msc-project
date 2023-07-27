@@ -113,7 +113,7 @@ def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
     # Plotter
     ax.plot(f_sig, data, label="H1 PSD", alpha=0.5)
     # Plot customization
-    ax.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}", xscale='log')
+    ax.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}", xscale='log', yscale='log')
     ax.legend()
     fig.tight_layout()
     # Plot admin
@@ -185,8 +185,8 @@ def fim_contour_plot(
     # Grid - mc, mr
     mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
     # Plot data process
-    plotmat_hp = fim_hp_repo.reshape((mc_repo.shape[-1], mr_repo.shape[-1]))
-    plotmat_hc = fim_hc_repo.reshape((mc_repo.shape[-1], mr_repo.shape[-1]))
+    plotmat_hp = fim_hp_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
+    plotmat_hc = fim_hc_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
     # Plot init
     fig, (ax1, ax2) = plt.subplots(2, 1)
     # Plotter
