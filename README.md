@@ -1,7 +1,7 @@
 ## gla-igr-msc-project
 This is the degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
-- Editted: July 26, 2023
+- Editted: July 27, 2023
 
 ## Environment
 ```WSL: Ubuntu```
@@ -21,9 +21,9 @@ ang_inc, ang_pol = 0.0, 0.0
 ```
 
 ## Purpose
-- Using ```jax``` and other packages to construct machine learning scripts
-- Use ```jax``` with CUDA support for faster compilations
-- Use normalizing flow for template bank placement problems
+- Using ```jax``` ```ripplegw``` ```bilby``` to construct machine learning scripts
+- Use ```jax``` with ```CUDA``` support for ```@jax.jit``` compilations
+- Use normalizing flow for template bank placement analysis
 
 ## File structure
 ```bash
@@ -48,12 +48,12 @@ ang_inc, ang_pol = 0.0, 0.0
 ```
 
 ## Active plots
-- GW170817 waveform generated with ```ripplegw```
+- GW150914 waveform generated with ```ripplegw```
 <p align="center">
   <img src="./figures/fig_01_ripple_waveform.png"/>
 </p>
 
-- GW170817 waveform gradient plot with ```jax.vmap(jax.grad())```
+- GW150914 waveform gradient plot with ```jax.vmap(jax.grad())```
 <p align="center">
   <img src="./figures/fig_02_ripple_waveform_grad.png"/>
 </p>
