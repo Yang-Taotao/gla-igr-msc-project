@@ -13,36 +13,35 @@ import scienceplots
 plt.style.use(['science', 'notebook', 'grid'])
 
 # %%
-# Ripple - plotter resources
-lbl_p, lbl_c, lbl_d, lbl_r, lbl_i, lbl_f, lbl_h = (
-    r"$h_+$ ",
+# Plotter resources
+lbl_plus, lbl_cros, lbl_real, lbl_imag = (
+    r"$h_+$ ", 
     r"$h_\times$ ",
-    r"$\partial$ ",
     r"$\Re$ ",
     r"$\Im$ ",
-    r"Frequency ",
-    r"GW Strain ",
 )
-
-# %%
-# Ripple - theta label
-
-
-def ripple_theta_label(idx: int):
-    # Build label tuple
-    label = (
-        r"mc",
-        r"mr",
-        r"s1",
-        r"s2",
-        r"dist_mpc",
-        r"c_time",
-        r"c_phas",
-        r"ang_inc",
-        r"ang_pol",
-    )
-    # Return result string
-    return label[idx]
+lbl_freq, lbl_strain, lbl_param, lbl_grad, lbl_fim, lbl_sqrtdet = (
+    r"Frequency (Hz)",
+    r"GW Strain ",
+    r"$\vec{\Theta}$",
+    r"$\vec{\Delta}$",
+    r"$\mathcal{I}$",
+    r"$\sqrt{\det{\mathcal{I}}}$",
+)
+# Plot customization resources
+xscale, yscale, lw, alpha, cmap = 'log', 'log', 3, 0.75, 'winter'
+# Param label resources
+label_repo = (
+    r"$m_c$",
+    r"$m_r$",
+    r"$s_1$",
+    r"$s_2$",
+    r"$dist\_mpc$",
+    r"$c_{\text{time}}$",
+    r"$c_{\text{phas}}$",
+    r"$\theta$",
+    r"$\phi$",
+)
 
 # %%
 # Ripple - waveform plotter
@@ -54,15 +53,19 @@ def ripple_waveform_plot(
     f_sig: jnp.ndarray,
 ):
     # Plot init
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 9))
     # Plotter
-    ax1.plot(f_sig, h_plus.real, label=f"{lbl_r}{lbl_p}", alpha=0.75, lw=1.5)
-    ax1.plot(f_sig, h_plus.imag, label=f"{lbl_i}{lbl_p}", alpha=0.75, lw=1.5)
-    ax2.plot(f_sig, h_cros.real, label=f"{lbl_r}{lbl_c}", alpha=0.75, lw=1.5)
-    ax2.plot(f_sig, h_cros.imag, label=f"{lbl_i}{lbl_c}", alpha=0.75, lw=1.5)
+    ax1.plot(f_sig, h_plus.real,
+             label=f"{lbl_real}{lbl_plus}{(lbl_param)}", alpha=alpha, lw=lw)
+    ax1.plot(f_sig, h_plus.imag,
+             label=f"{lbl_imag}{lbl_plus}{(lbl_param)}", alpha=alpha, lw=lw)
+    ax2.plot(f_sig, h_cros.real,
+             label=f"{lbl_real}{lbl_cros}{(lbl_param)}", alpha=alpha, lw=lw)
+    ax2.plot(f_sig, h_cros.imag,
+             label=f"{lbl_imag}{lbl_cros}{(lbl_param)}", alpha=alpha, lw=lw)
     # Plot customization
-    ax1.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}{lbl_p}")
-    ax2.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}{lbl_c}")
+    ax1.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_strain}", xscale=xscale)
+    ax2.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_strain}", xscale=xscale)
     ax1.legend()
     ax2.legend()
     fig.tight_layout()
@@ -81,22 +84,21 @@ def ripple_grad_plot_idx(
     idx2: int,
 ):
     # Local variable repo
-    label1 = ripple_theta_label(idx1)
-    label2 = ripple_theta_label(idx2)
+    label1, label2 = label_repo[idx1], label_repo[idx2]
     # Plot init
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 9))
     # Plotter
     ax1.plot(f_sig, grad_hp[:, idx1],
-             alpha=0.75, label=f"{lbl_r}{lbl_p}", lw=1.5)
+             label=f"{lbl_real}{lbl_plus}", alpha=alpha, lw=lw)
     ax1.plot(f_sig, grad_hc[:, idx1],
-             alpha=0.75, label=f"{lbl_i}{lbl_c}", lw=1.5)
+             label=f"{lbl_imag}{lbl_cros}", alpha=alpha, lw=lw)
     ax2.plot(f_sig, grad_hp[:, idx2],
-             alpha=0.75, label=f"{lbl_r}{lbl_p}", lw=1.5)
+             label=f"{lbl_real}{lbl_plus}", alpha=alpha, lw=lw)
     ax2.plot(f_sig, grad_hc[:, idx2],
-             alpha=0.75, label=f"{lbl_i}{lbl_c}", lw=1.5)
+             label=f"{lbl_imag}{lbl_cros}", alpha=alpha, lw=lw)
     # Plot customization
-    ax1.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_d}/{lbl_d}{label1}")
-    ax2.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_d}/{lbl_d}{label2}")
+    ax1.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_grad}{label1}")
+    ax2.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_grad}{label2}")
     ax1.legend()
     ax2.legend()
     fig.tight_layout()
@@ -111,12 +113,12 @@ def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
     # Get data min
     data_min = data.min()
     # Plot init
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(16, 9))
     # Plotter
-    ax.plot(f_sig, data, label="H1 PSD", alpha=0.75, lw=1.5)
-    ax.fill_between(f_sig, data, data_min, alpha=0.5)
+    ax.plot(f_sig, data, label="H1 PSD", alpha=alpha, lw=lw)
+    ax.fill_between(f_sig, data, data_min, alpha=0.8*alpha)
     # Plot customization
-    ax.set(xlabel=f"{lbl_f}", ylabel=f"{lbl_h}", xscale='log', yscale='log')
+    ax.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_strain}", xscale=xscale, yscale=yscale)
     ax.legend()
     fig.tight_layout()
     # Plot admin
@@ -130,7 +132,7 @@ def fim_plot(data: jnp.ndarray):
     # Plot init
     fig, ax = plt.subplots(figsize=(8, 6))
     # Plotter
-    im = ax.imshow(data, cmap='RdBu', alpha=0.75)
+    im = ax.imshow(data, cmap=cmap, alpha=alpha)
     # Plot customization
     ax.figure.colorbar(im, ax=ax)
     ax.set(xlabel="Columns", ylabel="Rows")
@@ -154,27 +156,23 @@ def fim_param_plot(
     # Plot init
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
     # Plotter
-    ax1.scatter(mc_data, fim_hp_repo, label="Mass - chirp", 
-                alpha=0.75, s=20, cmap='Blues')
-    ax2.scatter(mr_data, fim_hp_repo, label="Mass - ratio", 
-                alpha=0.75, s=20, cmap='Blues')
-    ax3.scatter(mc_data, fim_hc_repo, label="Mass - chirp", 
-                alpha=0.75, s=20, cmap='Blues')
-    ax4.scatter(mr_data, fim_hc_repo, label="Mass - ratio", 
-                alpha=0.75, s=20, cmap='Blues')
+    cs1 = ax1.scatter(mc_data, fim_hp_repo, alpha=alpha, s=30, c=jnp.log(fim_hp_repo), cmap=cmap)
+    cs2 = ax2.scatter(mr_data, fim_hp_repo, alpha=alpha, s=30, c=jnp.log(fim_hp_repo), cmap=cmap)
+    cs3 = ax3.scatter(mc_data, fim_hc_repo, alpha=alpha, s=30, c=jnp.log(fim_hc_repo), cmap=cmap)
+    cs4 = ax4.scatter(mr_data, fim_hc_repo, alpha=alpha, s=30, c=jnp.log(fim_hc_repo), cmap=cmap)
     # Plot custmoization
-    ax1.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det",
-            title="fim_hp-mc", xscale="log", yscale="log")
-    ax2.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det",
-            title="fim_hp-mr", xscale="log", yscale="log")
-    ax3.set(xlabel="Mass - chirp", ylabel="FIM - Sqrt of Det",
-            title="fim_hc-mc", xscale="log", yscale="log")
-    ax4.set(xlabel="Mass - ratio", ylabel="FIM - Sqrt of Det",
-            title="fim_hc-mr", xscale="log", yscale="log")
-    ax1.legend()
-    ax2.legend()
-    ax3.legend()
-    ax4.legend()
+    ax1.set(xlabel=f"{label_repo[0]}", ylabel=f"{lbl_sqrtdet}",
+            title=f"{lbl_sqrtdet}_{lbl_plus}_{label_repo[0]}", xscale=xscale, yscale=yscale)
+    ax2.set(xlabel=f"{label_repo[1]}", ylabel=f"{lbl_sqrtdet}",
+            title=f"{lbl_sqrtdet}_{lbl_cros}_{label_repo[1]}", xscale=xscale, yscale=yscale)
+    ax3.set(xlabel=f"{label_repo[0]}", ylabel=f"{lbl_sqrtdet}",
+            title=f"{lbl_sqrtdet}_{lbl_plus}_{label_repo[0]}", xscale=xscale, yscale=yscale)
+    ax4.set(xlabel=f"{label_repo[1]}", ylabel=f"{lbl_sqrtdet}",
+            title=f"{lbl_sqrtdet}_{lbl_cros}_{label_repo[1]}", xscale=xscale, yscale=yscale)
+    plt.colorbar(cs1, ax=ax1)
+    plt.colorbar(cs2, ax=ax2)
+    plt.colorbar(cs3, ax=ax3)
+    plt.colorbar(cs4, ax=ax4)
     # Plot admin
     fig.tight_layout()
     fig.savefig("./figures/fig_05_fim_hp_mc_mr.png")
@@ -197,15 +195,15 @@ def fim_contour_plot(
     # Plot init
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     # Plotter
-    cs1 = ax1.contourf(mc_grid, mr_grid, plotmat_hp, alpha=0.75, 
-                       levels=50, cmap='Blues', linewidths=1.5)
-    cs2 = ax2.contourf(mc_grid, mr_grid, plotmat_hc, alpha=0.75, 
-                       levels=50, cmap='Blues', linewidths=1.5)
+    cs1 = ax1.contourf(mc_grid, mr_grid, plotmat_hp, alpha=alpha, 
+                       levels=50, cmap=cmap, linewidths=lw)
+    cs2 = ax2.contourf(mc_grid, mr_grid, plotmat_hc, alpha=alpha, 
+                       levels=50, cmap=cmap, linewidths=lw)
     # Plot customization
-    ax1.set(xlabel="Mass - chirp", ylabel="Mass - ratio",
-            title="FIM-sqrtdet grad hp", xscale="log", yscale="log")
-    ax2.set(xlabel="Mass - chirp", ylabel="Mass - ratio",
-            title="FIM-sqrtdet grad hc", xscale="log", yscale="log")
+    ax1.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
+            title=f"{lbl_sqrtdet}_{lbl_grad}{lbl_plus}", xscale=xscale, yscale=yscale)
+    ax2.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
+            title=f"{lbl_sqrtdet}_{lbl_grad}{lbl_cros}", xscale=xscale, yscale=yscale)
     plt.colorbar(cs1, ax=ax1)
     plt.colorbar(cs2, ax=ax2)
     # Plot admin

@@ -14,7 +14,7 @@ import bilby
 # Config setup
 # ============================================================ #
 # Frequency - min, max, step
-f_min, f_max, f_del = 24.0, 512.0, 0.50
+f_min, f_max, f_del = 24.0, 512.0, 0.25
 # Chirp mass - min, max, step
 mc_min, mc_max, mc_del = 6.00, 31.0, 1.0
 # Mass ratio - min, max, step
