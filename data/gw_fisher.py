@@ -37,12 +37,16 @@ def inner_prod(data: jnp.ndarray, idx: tuple):
 def build_fim(data: jnp.ndarray, idx: tuple):
     # Build local matrix
     n_idx = len(idx)
-    # Return matrix entey parser
-    return jnp.array([
+    # Get matrix entey parser
+    matrix = jnp.array([
         inner_prod(data, (idx[i], idx[j]))
         for i in range(n_idx)
         for j in range(n_idx)
     ]).reshape((n_idx, n_idx))
+    # Normalize matrix entries
+    fim_min, fim_max = jnp.min(matrix), jnp.max(matrix)
+    # Return normalized result
+    return (matrix-fim_min)/(fim_max-fim_min)
 
 
 def sqrtdet_fim(data: jnp.ndarray, idx: tuple):
