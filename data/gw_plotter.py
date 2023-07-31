@@ -7,6 +7,7 @@ Created on Thu Jul 11 2023
 # %%
 # Library import
 import jax.numpy as jnp
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import scienceplots
 # Plotter style customization
@@ -20,16 +21,29 @@ lbl_plus, lbl_cros, lbl_real, lbl_imag = (
     r"$\Re$ ",
     r"$\Im$ ",
 )
-lbl_freq, lbl_strain, lbl_param, lbl_grad, lbl_fim, lbl_sqrtdet = (
-    r"Frequency (Hz)",
+lbl_freq, lbl_strain, lbl_noise, lbl_param, lbl_grad, lbl_fim, lbl_sqrtdet = (
+    r"Frequency [Hz]",
     r"GW Strain ",
+    r"GW Strain Noise [Hz^($-1/2$)]",
     r"$\vec{\Theta}$",
     r"$\vec{\Delta}$",
     r"$\mathcal{I}$",
     r"$\sqrt{\det{\mathcal{I}}}$",
 )
 # Plot customization resources
-xscale, yscale, lw, alpha, cmap = 'log', 'log', 3, 0.75, 'winter'
+xscale, yscale, norm, lw, alpha, size, levels, cmap, cmap_r, cr, cb = (
+    'log',
+    'log',
+    'log',
+    2.5,
+    0.8,
+    36,
+    300,
+    'gist_heat',
+    'gist_heat_r',
+    '#B30C00',
+    '#005398',
+)
 # Param label resources
 label_repo = (
     r"$m_c$",
@@ -53,16 +67,16 @@ def ripple_waveform_plot(
     f_sig: jnp.ndarray,
 ):
     # Plot init
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 9))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 12))
     # Plotter
-    ax1.plot(f_sig, h_plus.real,
-             label=f"{lbl_real}{lbl_plus}{(lbl_param)}", alpha=alpha, lw=lw)
-    ax1.plot(f_sig, h_plus.imag,
-             label=f"{lbl_imag}{lbl_plus}{(lbl_param)}", alpha=alpha, lw=lw)
-    ax2.plot(f_sig, h_cros.real,
-             label=f"{lbl_real}{lbl_cros}{(lbl_param)}", alpha=alpha, lw=lw)
-    ax2.plot(f_sig, h_cros.imag,
-             label=f"{lbl_imag}{lbl_cros}{(lbl_param)}", alpha=alpha, lw=lw)
+    ax1.plot(f_sig, h_plus.real, label=f"{lbl_real}{lbl_plus}{(lbl_param)}",
+             alpha=alpha, lw=lw, color=cr)
+    ax1.plot(f_sig, h_plus.imag, label=f"{lbl_imag}{lbl_plus}{(lbl_param)}",
+             alpha=alpha, lw=lw, color=cb)
+    ax2.plot(f_sig, h_cros.real, label=f"{lbl_real}{lbl_cros}{(lbl_param)}",
+             alpha=alpha, lw=lw, color=cr)
+    ax2.plot(f_sig, h_cros.imag, label=f"{lbl_imag}{lbl_cros}{(lbl_param)}",
+             alpha=alpha, lw=lw, color=cb)
     # Plot customization
     ax1.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_strain}", xscale=xscale)
     ax2.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_strain}", xscale=xscale)
@@ -86,16 +100,16 @@ def ripple_grad_plot_idx(
     # Local variable repo
     label1, label2 = label_repo[idx1], label_repo[idx2]
     # Plot init
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 9))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 12))
     # Plotter
-    ax1.plot(f_sig, grad_hp[:, idx1],
-             label=f"{lbl_real}{lbl_plus}", alpha=alpha, lw=lw)
-    ax1.plot(f_sig, grad_hc[:, idx1],
-             label=f"{lbl_imag}{lbl_cros}", alpha=alpha, lw=lw)
-    ax2.plot(f_sig, grad_hp[:, idx2],
-             label=f"{lbl_real}{lbl_plus}", alpha=alpha, lw=lw)
-    ax2.plot(f_sig, grad_hc[:, idx2],
-             label=f"{lbl_imag}{lbl_cros}", alpha=alpha, lw=lw)
+    ax1.plot(f_sig, grad_hp[:, idx1], label=f"{lbl_real}{lbl_plus}", 
+             alpha=alpha, lw=lw, color=cr)
+    ax1.plot(f_sig, grad_hc[:, idx1], label=f"{lbl_imag}{lbl_cros}", 
+             alpha=alpha, lw=lw, color=cb)
+    ax2.plot(f_sig, grad_hp[:, idx2], label=f"{lbl_real}{lbl_plus}", 
+             alpha=alpha, lw=lw, color=cr)
+    ax2.plot(f_sig, grad_hc[:, idx2], label=f"{lbl_imag}{lbl_cros}", 
+             alpha=alpha, lw=lw, color=cb)
     # Plot customization
     ax1.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_grad}{label1}")
     ax2.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_grad}{label2}")
@@ -110,19 +124,19 @@ def ripple_grad_plot_idx(
 
 
 def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
-    # Get data min
-    data_min = data.min()
+    # Get artificial data min
+    data_min = 0.0
     # Plot init
-    fig, ax = plt.subplots(figsize=(16, 9))
+    fig, ax = plt.subplots(figsize=(16, 12))
     # Plotter
-    ax.plot(f_sig, data, label="H1 PSD", alpha=alpha, lw=lw)
-    ax.fill_between(f_sig, data, data_min, alpha=0.8*alpha)
+    ax.plot(f_sig, data, label="H1 PSD", alpha=alpha, lw=lw, color=cr)
+    ax.fill_between(f_sig, data, data_min, alpha=0.6*alpha, color=cb)
     # Plot customization
-    ax.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_strain}", xscale=xscale, yscale=yscale)
+    ax.set(xlabel=f"{lbl_freq}", ylabel=f"{lbl_noise}", xscale=xscale, yscale=yscale)
     ax.legend()
     fig.tight_layout()
     # Plot admin
-    fig.savefig("./figures/fig_03_bilby_psd.png")
+    fig.savefig("./figures/fig_03_bilby.png")
 
 # %%
 # FIM - matrix plotter
@@ -130,12 +144,12 @@ def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
 
 def fim_plot(data: jnp.ndarray):
     # Plot init
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(16, 12))
     # Plotter
-    im = ax.imshow(data, cmap=cmap, alpha=alpha)
+    im = ax.imshow(data, cmap=cmap_r, alpha=alpha, norm=norm)
     # Plot customization
     ax.figure.colorbar(im, ax=ax)
-    ax.set(xlabel="Columns", ylabel="Rows")
+    ax.set(xlabel=r"Columns: $\Theta_i$", ylabel=r"Rows: $\Theta_j$")
     # Plot admin
     fig.savefig("./figures/fig_04_fim.png")
 
@@ -156,19 +170,19 @@ def fim_param_plot(
     # Plot init
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
     # Plotter
-    cs1 = ax1.scatter(mc_data, fim_hp_repo, alpha=alpha, s=30, c=jnp.log(fim_hp_repo), cmap=cmap)
-    cs2 = ax2.scatter(mr_data, fim_hp_repo, alpha=alpha, s=30, c=jnp.log(fim_hp_repo), cmap=cmap)
-    cs3 = ax3.scatter(mc_data, fim_hc_repo, alpha=alpha, s=30, c=jnp.log(fim_hc_repo), cmap=cmap)
-    cs4 = ax4.scatter(mr_data, fim_hc_repo, alpha=alpha, s=30, c=jnp.log(fim_hc_repo), cmap=cmap)
+    cs1 = ax1.scatter(mc_data, fim_hp_repo, alpha=alpha, s=size, c=fim_hp_repo, cmap=cmap)
+    cs2 = ax2.scatter(mr_data, fim_hp_repo, alpha=alpha, s=size, c=fim_hp_repo, cmap=cmap)
+    cs3 = ax3.scatter(mc_data, fim_hc_repo, alpha=alpha, s=size, c=fim_hc_repo, cmap=cmap)
+    cs4 = ax4.scatter(mr_data, fim_hc_repo, alpha=alpha, s=size, c=fim_hc_repo, cmap=cmap)
     # Plot custmoization
     ax1.set(xlabel=f"{label_repo[0]}", ylabel=f"{lbl_sqrtdet}",
-            title=f"{lbl_sqrtdet}_{lbl_plus}_{label_repo[0]}", xscale=xscale, yscale=yscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_plus} wrt. {label_repo[0]}")
     ax2.set(xlabel=f"{label_repo[1]}", ylabel=f"{lbl_sqrtdet}",
-            title=f"{lbl_sqrtdet}_{lbl_cros}_{label_repo[1]}", xscale=xscale, yscale=yscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_plus} wrt. {label_repo[1]}")
     ax3.set(xlabel=f"{label_repo[0]}", ylabel=f"{lbl_sqrtdet}",
-            title=f"{lbl_sqrtdet}_{lbl_plus}_{label_repo[0]}", xscale=xscale, yscale=yscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_cros} wrt. {label_repo[0]}")
     ax4.set(xlabel=f"{label_repo[1]}", ylabel=f"{lbl_sqrtdet}",
-            title=f"{lbl_sqrtdet}_{lbl_cros}_{label_repo[1]}", xscale=xscale, yscale=yscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_cros} wrt. {label_repo[1]}")
     plt.colorbar(cs1, ax=ax1)
     plt.colorbar(cs2, ax=ax2)
     plt.colorbar(cs3, ax=ax3)
@@ -190,20 +204,18 @@ def fim_contour_plot(
     # Grid - mc, mr
     mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo)
     # Plot data process
-    plotmat_hp = fim_hp_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
-    plotmat_hc = fim_hc_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
+    mat_hp = fim_hp_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
+    mat_hc = fim_hc_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
     # Plot init
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     # Plotter
-    cs1 = ax1.contourf(mc_grid, mr_grid, plotmat_hp, alpha=alpha, 
-                       levels=50, cmap=cmap, linewidths=lw)
-    cs2 = ax2.contourf(mc_grid, mr_grid, plotmat_hc, alpha=alpha, 
-                       levels=50, cmap=cmap, linewidths=lw)
+    cs1 = ax1.contourf(mc_grid, mr_grid, mat_hp, alpha=alpha, levels=levels, cmap=cmap)
+    cs2 = ax2.contourf(mc_grid, mr_grid, mat_hc, alpha=alpha, levels=levels, cmap=cmap)
     # Plot customization
     ax1.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
-            title=f"{lbl_sqrtdet}_{lbl_grad}{lbl_plus}", xscale=xscale, yscale=yscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_plus}", xscale=xscale)
     ax2.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
-            title=f"{lbl_sqrtdet}_{lbl_grad}{lbl_cros}", xscale=xscale, yscale=yscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_cros}", xscale=xscale)
     plt.colorbar(cs1, ax=ax1)
     plt.colorbar(cs2, ax=ax2)
     # Plot admin
