@@ -59,5 +59,5 @@ gw_plotter.fim_plot(mock_fim)
 gw_plotter.bilby_plot(f_sig, f_psd)
 # Generated fim and contour
 gw_plotter.fim_param_plot(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
-gw_plotter.fim_contour_plot(
+gw_plotter.fim_contour_mc_mr_plot(
     data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)

@@ -38,7 +38,7 @@ xscale, yscale, norm, lw, alpha, size, levels, cmap, cmap_r, cr, cb = (
     2.5,
     0.8,
     36,
-    300,
+    100,
     'gist_heat',
     'gist_heat_r',
     '#B30C00',
@@ -164,9 +164,9 @@ def fim_param_plot(
     mr_repo: jnp.ndarray,
 ):
     # Grid - mc, mr
-    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo)
+    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
     # Format mc, mr data
-    mc_data, mr_data = mc_grid.flatten(), mr_grid.flatten()
+    mc_data, mr_data = mc_grid.flatten(), mr_grid.T.flatten()
     # Plot init
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
     # Plotter
@@ -195,7 +195,7 @@ def fim_param_plot(
 # FIM - hp mc mr contour
 
 
-def fim_contour_plot(
+def fim_contour_mc_mr_plot(
     fim_hp_repo: jnp.ndarray,
     fim_hc_repo: jnp.ndarray,
     mc_repo: jnp.ndarray,
@@ -204,18 +204,18 @@ def fim_contour_plot(
     # Grid - mc, mr
     mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo)
     # Plot data process
-    mat_hp = fim_hp_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
-    mat_hc = fim_hc_repo.reshape((mc_repo.shape[0], mr_repo.shape[0]))
+    mat_hp = fim_hp_repo.reshape((mc_grid.shape[0], mr_grid.shape[-1]))
+    mat_hc = fim_hc_repo.reshape((mc_grid.shape[0], mr_grid.shape[-1]))
     # Plot init
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     # Plotter
-    cs1 = ax1.contourf(mc_grid, mr_grid, mat_hp, alpha=alpha, levels=levels, cmap=cmap)
-    cs2 = ax2.contourf(mc_grid, mr_grid, mat_hc, alpha=alpha, levels=levels, cmap=cmap)
+    cs1 = ax1.contourf(mc_repo, mr_repo, jnp.rot90(mat_hp, k=-1), alpha=alpha, levels=levels, cmap=cmap)
+    cs2 = ax2.contourf(mc_repo, mr_repo, jnp.rot90(mat_hc, k=-1), alpha=alpha, levels=levels, cmap=cmap)
     # Plot customization
     ax1.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
-            title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_plus}", xscale=xscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_plus}")
     ax2.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
-            title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_cros}", xscale=xscale)
+            title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_cros}")
     plt.colorbar(cs1, ax=ax1)
     plt.colorbar(cs2, ax=ax2)
     # Plot admin
