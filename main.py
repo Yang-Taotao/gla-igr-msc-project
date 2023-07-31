@@ -29,7 +29,7 @@ mock_idx = jnp.array([0, 1])
 # %%
 # Section 1.c - Mock GW data generate - FIM, sqrt.det.fim
 data_idx = jnp.arange(len(mock_waveform_theta))
-mock_fim = gw_fisher.build_fim(mock_hp_grad, mock_idx)
+mock_fim = gw_fisher.build_fim(mock_hp_grad, data_idx)
 mock_fim_sqrtdet = gw_fisher.sqrtdet_fim(mock_hp_grad, mock_idx)
 
 # %%
