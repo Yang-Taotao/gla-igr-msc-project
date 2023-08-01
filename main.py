@@ -58,6 +58,6 @@ gw_plotter.ripple_grad_plot_idx(mock_hp_grad, mock_hc_grad, f_sig, *mock_idx)
 gw_plotter.fim_plot(mock_fim)
 gw_plotter.bilby_plot(f_sig, f_psd)
 # Generated fim and contour
-gw_plotter.fim_param_plot(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
-gw_plotter.fim_contour_mc_mr_plot(
-    data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
+gw_plotter.fim_param_2d(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
+# gw_plotter.fim_param_3d(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)
+gw_plotter.fim_contour_mc_mr(data_fim_hp_repo, data_fim_hc_repo, mc_repo, mr_repo)

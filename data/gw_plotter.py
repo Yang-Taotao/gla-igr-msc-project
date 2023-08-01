@@ -136,7 +136,7 @@ def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
     ax.legend()
     fig.tight_layout()
     # Plot admin
-    fig.savefig("./figures/fig_03_bilby.png")
+    fig.savefig("./figures/fig_03_bilby_psd.png")
 
 # %%
 # FIM - matrix plotter
@@ -151,13 +151,13 @@ def fim_plot(data: jnp.ndarray):
     ax.figure.colorbar(im, ax=ax)
     ax.set(xlabel=r"Columns: $\Theta_i$", ylabel=r"Rows: $\Theta_j$")
     # Plot admin
-    fig.savefig("./figures/fig_04_fim.png")
+    fig.savefig("./figures/fig_04_fim_heatmap.png")
 
 # %%
 # FIM - hp mc mr
 
 
-def fim_param_plot(
+def fim_param_2d(
     fim_hp_repo: jnp.ndarray,
     fim_hc_repo: jnp.ndarray,
     mc_repo: jnp.ndarray,
@@ -166,7 +166,7 @@ def fim_param_plot(
     # Grid - mc, mr
     mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
     # Format mc, mr data
-    mc_data, mr_data = mc_grid.flatten(), mr_grid.T.flatten()
+    mc_data, mr_data = mc_grid.T.flatten(), mr_grid.flatten()
     # Plot init
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
     # Plotter
@@ -189,28 +189,50 @@ def fim_param_plot(
     plt.colorbar(cs4, ax=ax4)
     # Plot admin
     fig.tight_layout()
-    fig.savefig("./figures/fig_05_fim_hp_mc_mr.png")
+    fig.savefig("./figures/fig_05_fim_mc_mr.png")
+
+
+def fim_param_3d(
+    fim_hp_repo: jnp.ndarray,
+    fim_hc_repo: jnp.ndarray,
+    mc_repo: jnp.ndarray,
+    mr_repo: jnp.ndarray,
+):
+    # Plot init
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6), subplot_kw={'projection': '3d'})
+    # Grid - mc, mr
+    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
+    # Plot data process
+    mat_hp = fim_hp_repo.reshape((mc_grid.shape[0], mr_grid.shape[0]))
+    mat_hc = fim_hc_repo.reshape((mc_grid.shape[0], mr_grid.shape[-1]))
+    # Plotter
+    ax1.scatter(mc_grid, mr_grid, jnp.rot90(mat_hp, k=-1))
+    ax2.scatter(mc_grid, mr_grid, jnp.rot90(mat_hc, k=-1))
+    ax1.set(xlabel=r"$m_c$", ylabel=r"$m_r$", zlabel=r"$\sqrt{\det{\mathcal{I}}}$")
+    ax2.set(xlabel=r"$m_c$", ylabel=r"$m_r$", zlabel=r"$\sqrt{\det{\mathcal{I}}}$")
+    fig.tight_layout()
+    fig.savefig("./figures/fig_05_fim_mc_mr_3d.png")
 
 # %%
 # FIM - hp mc mr contour
 
 
-def fim_contour_mc_mr_plot(
+def fim_contour_mc_mr(
     fim_hp_repo: jnp.ndarray,
     fim_hc_repo: jnp.ndarray,
     mc_repo: jnp.ndarray,
     mr_repo: jnp.ndarray,
 ):
     # Grid - mc, mr
-    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo)
+    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo, indexing='ij')
     # Plot data process
     mat_hp = fim_hp_repo.reshape((mc_grid.shape[0], mr_grid.shape[-1]))
     mat_hc = fim_hc_repo.reshape((mc_grid.shape[0], mr_grid.shape[-1]))
     # Plot init
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     # Plotter
-    cs1 = ax1.contourf(mc_repo, mr_repo, jnp.rot90(mat_hp, k=-1), alpha=alpha, levels=levels, cmap=cmap)
-    cs2 = ax2.contourf(mc_repo, mr_repo, jnp.rot90(mat_hc, k=-1), alpha=alpha, levels=levels, cmap=cmap)
+    cs1 = ax1.contourf(mc_grid, mr_grid, jnp.rot90(mat_hp, k=-1), alpha=alpha, levels=levels, cmap=cmap)
+    cs2 = ax2.contourf(mc_grid, mr_grid, jnp.rot90(mat_hc, k=-1), alpha=alpha, levels=levels, cmap=cmap)
     # Plot customization
     ax1.set(xlabel=f"{label_repo[0]}", ylabel=f"{label_repo[1]}",
             title=f"Normalized {lbl_sqrtdet} for {lbl_grad}{lbl_plus}")

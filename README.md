@@ -65,12 +65,12 @@ ang_inc, ang_pol = 0.0, 0.0
 
 - Fisher Information Matrix for test GW params
 <p align="center">
-  <img src="./figures/fig_04_fim.png"/>
+  <img src="./figures/fig_04_fim_heatmap.png"/>
 </p>
 
 - Fisher Information Matrix wrt mc and mr
 <p align="center">
-  <img src="./figures/fig_05_fim_hp_mc_mr.png"/>
+  <img src="./figures/fig_05_fim_mc_mr.png"/>
 </p>
 
 - Fisher Information Matrix contour plot
