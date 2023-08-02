@@ -10,7 +10,8 @@ import os
 # Package - jax
 import jax.numpy as jnp
 # Custom config import
-from data.gw_config import f_diff, f_psd
+from data.gw_config import f_diff, f_psd, f_sig
+from data.gw_ripple import gradient_plus_mceta, innerprod
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 
@@ -54,3 +55,29 @@ def sqrtdet_fim(data: jnp.ndarray, idx: tuple):
     matrix = build_fim(data, idx)
     # Return sqrt(det(FIM))
     return jnp.sqrt(jnp.linalg.det(matrix))
+
+def fim(mc_eta):
+    """Returns the fisher information matrix
+    at a general value of mc, eta
+
+    Args:
+        mc_eta (array): chirp mass and eta array. Shape 1x2
+    """
+    # Generate the waveform derivatives
+    assert mc_eta.shape[-1] == 2
+    grads = gradient_plus_mceta(mc_eta)
+    assert grads.shape[-2] == f_psd.shape[0]
+
+    print("Computed gradients, shape ",grads.shape)
+    Nd = grads.shape[-1]
+    # There should be no nans
+    assert jnp.isnan(grads).sum()==0
+    # Compute their inner product
+
+    
+    fim = jnp.array([innerprod(grads[:,i],grads[:,j])
+                     for j in range(Nd) for i in range(Nd)]).reshape([Nd,Nd])
+    # Return FIM
+    return fim
+
+    
