@@ -1,7 +1,7 @@
 ## gla-igr-msc-project
 This is the degree project for *MSc in Astrophysics* at *University of Glasgow*
 - Initialized: May 30, 2023
-- Editted: July 27, 2023
+- Editted: August 03, 2023
 
 ## Environment
 ```WSL: Ubuntu```
@@ -45,8 +45,8 @@ ang_inc, ang_pol = 0.0, 0.0
 │   ├── fig_06_fim_mc_mr_contour.png
 │   ├── fig_06_fim_mc_mr_contour_alternative.png
 │   └── fig_06_fim_mc_mr_contour_log10.png
-├── main_legacy.py
-└── main_test.py
+├── main.py
+└── main_legacy.py
 ```
 
 ## Active plots
