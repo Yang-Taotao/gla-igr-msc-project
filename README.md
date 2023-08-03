@@ -40,11 +40,13 @@ ang_inc, ang_pol = 0.0, 0.0
 │   ├── fig_01_ripple_waveform.png
 │   ├── fig_02_ripple_waveform_grad.png
 │   ├── fig_03_bilby_psd.png
-│   ├── fig_04_fim.png
-│   ├── fig_05_fim_hp_mc_mr.png
-│   └── fig_06_fim_mc_mr_contour.png
-├── main.ipynb
-└── main.py
+│   ├── fig_04_fim_heatmap.png
+│   ├── fig_05_fim_mc_mr.png
+│   ├── fig_06_fim_mc_mr_contour.png
+│   ├── fig_06_fim_mc_mr_contour_alternative.png
+│   └── fig_06_fim_mc_mr_contour_log10.png
+├── main_legacy.py
+└── main_test.py
 ```
 
 ## Active plots
@@ -76,4 +78,9 @@ ang_inc, ang_pol = 0.0, 0.0
 - Fisher Information Matrix contour plot
 <p align="center">
   <img src="./figures/fig_06_fim_mc_mr_contour.png"/>
+</p>
+
+- Fisher Information Matrix contour plot at log_10 base
+<p align="center">
+  <img src="./figures/fig_06_fim_mc_mr_contour_log10.png"/>
 </p>
