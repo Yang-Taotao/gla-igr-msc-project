@@ -1,8 +1,5 @@
 """
-Plotter function repo.
-
-Created on Thu Jul 11 2023
-@author: Yang-Taotao
+Plotter functions repository.
 """
 # %%
 # Library import
@@ -243,3 +240,4 @@ def fim_contour_mc_mr(
     # Plot admin
     fig.tight_layout()
     fig.savefig("./figures/fig_06_fim_mc_mr_contour.png")
+    

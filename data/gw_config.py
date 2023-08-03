@@ -1,8 +1,5 @@
 """
 Configuration setup script.
-
-Created on Thu Jul 26 2023
-@author: Yang-Taotao
 """
 # %%
 # Library import
@@ -19,8 +16,10 @@ f_min, f_max, f_del = 24.0, 512.0, 0.5
 mc_min, mc_max, mc_del = 6.00, 31.0, 1.0
 # Mass ratio - min, max, step
 mr_min, mr_max, mr_del = 0.01, 0.26, 0.01
-# Base theta - s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
-theta_base = jnp.array([0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
+# Base theta - mc, mr, s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
+theta_base = jnp.array(
+    [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0]
+)
 # ============================================================ #
 
 # %%
@@ -28,12 +27,16 @@ theta_base = jnp.array([0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
 
 
 def freq_ripple(data_min: float, data_max: float, data_del: float):
-    # Calculate and return freq - signal, reference
+    '''
+    Build signal and reference frequency array
+    '''
     return jnp.arange(data_min, data_max, data_del), data_min
 
 
 def freq_fisher(data_min: float, data_max: float, data_del: float):
-    # Calculate and return freq - difference, sampling, duration
+    '''
+    Calculate frequency difference, sampling size, and duration
+    '''
     return (
         data_max - data_min,
         (data_max - data_min) / data_del,
@@ -42,6 +45,9 @@ def freq_fisher(data_min: float, data_max: float, data_del: float):
 
 
 def freq_psd(data_samp: float, data_dura: float):
+    '''
+    Produce bilby based PSD noise array
+    '''
     # Get detector
     detector = bilby.gw.detector.get_empty_interferometer("H1")
     # Get sampling freq
@@ -60,6 +66,9 @@ def theta_ripple(
         data_mr_repo: jnp.ndarray,
         data_theta_base: jnp.ndarray
     ):
+    '''
+    Create matrix of ripplegw theta arguments
+    '''
     # Custom concatenater
     def theta_join(matrix):
         # Return joined matrix
