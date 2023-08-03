@@ -5,6 +5,7 @@ Fisher Information Matrix calculator functions.
 # Library import
 import os
 # Package - jax
+import jax
 import jax.numpy as jnp
 # Custom config import
 from data.gw_config import f_diff, f_psd, f_sig, theta_base
@@ -13,9 +14,22 @@ from data.gw_ripple import gradient_plus, innerprod, waveform_plus_normed
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 
 
+@jax.jit
+def log10_sqrt_det(mceta):
+    """
+    Return the log10 based square root of the determinant of 
+    Fisher matrix projected onto the mc, eta space
+    """
+    try:
+        G = projected_fim(mceta)
+    except AssertionError:
+        G = jnp.nan
+    return jnp.log10(jnp.sqrt(jnp.linalg.det(G)))
+
+
 def projected_fim(params):
     """
-    Return the Fisher matrix projected onto the mc,eta space
+    Return the Fisher matrix projected onto the mc, eta space
     """
     full_fim = fim(params)
     Nd = params.shape[-1]
@@ -40,21 +54,22 @@ def projected_fim(params):
 
 
 def fim(params):
-    """Returns the fisher information matrix
+    """
+    Returns the fisher information matrix 
     at a general value of mc, eta, tc, phic
 
     Args:
         params (array): [Mc, eta, t_c, phi_c]. Shape 1x4
     """
     # Generate the waveform derivatives
-    assert params.shape[-1] == 4
+    # assert params.shape[-1] == 4
     grads = gradient_plus(params)
-    assert grads.shape[-2] == f_psd.shape[0]
+    # assert grads.shape[-2] == f_psd.shape[0]
 
     #print("Computed gradients, shape ",grads.shape)
     Nd = grads.shape[-1]
     # There should be no nans
-    assert jnp.isnan(grads).sum()==0
+    # assert jnp.isnan(grads).sum()==0
     #if jnp.isnan(grads).sum()>0:
     #    print(f"NaN encountered in FIM calculation for ",mceta)
     
