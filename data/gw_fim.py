@@ -8,7 +8,7 @@ import os
 import jax
 import jax.numpy as jnp
 # Custom config import
-from data.gw_rpl import gradient_plus, inner_prod
+from data import gw_rpl
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 
@@ -40,7 +40,7 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
 @jax.jit
 def log10_sqrt_det(mceta: jnp.ndarray):
     """
-    Return the log10 based square root of the determinant of 
+    Return the log10 based square root of the determinant of
     Fisher matrix projected onto the mc, eta space
     """
     try:
@@ -54,7 +54,12 @@ def log10_sqrt_det(mceta: jnp.ndarray):
 # FIM - Main ==> Batching
 
 
-def density_batch_calc(data: jnp.ndarray, mcs: jnp.ndarray, etas: jnp.ndarray, batch_size: int=100):
+def density_batch_calc(
+        data: jnp.ndarray,
+        mcs: jnp.ndarray,
+        etas: jnp.ndarray,
+        batch_size: int = 100,
+    ):
     """
     Calculate DENSITY grid values with batching
     """
@@ -85,12 +90,12 @@ def projected_fim(params: jnp.ndarray):
     """
     full_fim = fim(params)
     Nd = params.shape[-1]
-    
+
     # Calculate the conditioned matrix for phase
     # Equation 16 from Dent & Veitch
     gamma = jnp.array([
-        full_fim[i, j] - full_fim[i, -1] * full_fim[-1 ,j] / full_fim[-1, -1]
-        for i in range(Nd-1) 
+        full_fim[i, j] - full_fim[i, -1] * full_fim[-1, j] / full_fim[-1, -1]
+        for i in range(Nd-1)
         for j in range(Nd-1)
     ]).reshape([Nd-1, Nd-1])
 
@@ -98,16 +103,16 @@ def projected_fim(params: jnp.ndarray):
     # Equation 18 from Dent & Veitch
     G = jnp.array([
         gamma[i, j] - gamma[i, -1] * gamma[-1, j] / gamma[-1, -1]
-        for i in range(Nd-2) 
+        for i in range(Nd-2)
         for j in range(Nd-2)
     ]).reshape([Nd-2, Nd-2])
-    
+
     return G
 
 
 def fim(params: jnp.ndarray):
     """
-    Returns the fisher information matrix 
+    Returns the fisher information matrix
     at a general value of mc, eta, tc, phic
 
     Args:
@@ -115,7 +120,7 @@ def fim(params: jnp.ndarray):
     """
     # Generate the waveform derivatives
     # assert params.shape[-1] == 4
-    grads = gradient_plus(params)
+    grads = gw_rpl.gradient_plus(params)
     # assert grads.shape[-2] == f_psd.shape[0]
 
     #print("Computed gradients, shape ",grads.shape)
@@ -124,20 +129,20 @@ def fim(params: jnp.ndarray):
     # assert jnp.isnan(grads).sum()==0
     #if jnp.isnan(grads).sum()>0:
     #    print(f"NaN encountered in FIM calculation for ",mceta)
-    
+
     # Compute their inner product
     # Calculate the independent matrix entries
     entries = {
-        (i,j) : inner_prod(grads[:, i], grads[:, j])
-        for j in range(Nd) 
+        (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
+        for j in range(Nd)
         for i in range(j+1)
     }
 
     # Fill the matrix from the precalculated entries
-    fim = jnp.array([
+    fim_result = jnp.array([
         entries[tuple(sorted([i, j]))]
-        for j in range(Nd) 
+        for j in range(Nd)
         for i in range(Nd)
     ]).reshape([Nd, Nd])
     # Func return
-    return fim
+    return fim_result

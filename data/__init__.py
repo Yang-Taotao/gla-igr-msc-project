@@ -2,8 +2,6 @@
 This is the packaging script for MSc project.
 
 Created on Thu Jul 21 2023
-
-@author: Yang-Taotao
 """
 from .gw_rpl import *
 from .gw_fim import *

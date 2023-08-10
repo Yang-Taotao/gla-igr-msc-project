@@ -6,18 +6,21 @@ Configuration setup script.
 import jax
 import jax.numpy as jnp
 import bilby
-import main
 
 # %%
-# Config import 
+# Config setup
+# ============================================================ #
 # Frequency - min, max, step
-f_min, f_max, f_del = main.f_min, main.f_max, main.f_del
+f_min, f_max, f_del = 24.0, 512.0, 0.5
 # Chirp mass - min, max, step
-mc_min, mc_max, mc_num = main.mc_min, main.mc_max, main.mc_num
+mc_min, mc_max, mc_num = 1.000, 21.00, 100
 # Mass ratio - min, max, step
-eta_min, eta_max, eta_num = main.eta_min, main.eta_max, main.eta_num
+eta_min, eta_max, eta_num = 0.050, 0.250, 100
 # Base theta - mc, eta, s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
-theta_base = main.theta_base
+theta_base = jnp.array(
+    [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0]
+)
+# ============================================================ #
 
 # %%
 # Frequency array builder
