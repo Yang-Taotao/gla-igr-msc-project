@@ -63,9 +63,9 @@ def freq_psd(data_samp: float, data_dura: float):
 
 
 def theta_ripple(
-        data_mc_repo: jnp.ndarray,
-        data_mr_repo: jnp.ndarray,
-        data_theta_base: jnp.ndarray
+        mc_repo: jnp.ndarray,
+        mr_repo: jnp.ndarray,
+        theta: jnp.ndarray,
     ):
     '''
     Create matrix of ripplegw theta arguments
@@ -73,9 +73,9 @@ def theta_ripple(
     # Custom concatenater
     def theta_join(matrix):
         # Return joined matrix
-        return jnp.concatenate((matrix, data_theta_base))
+        return jnp.concatenate((matrix, theta))
     # Build mc and mr grid
-    mc_grid, mr_grid = jnp.meshgrid(data_mc_repo, data_mr_repo)
+    mc_grid, mr_grid = jnp.meshgrid(mc_repo, mr_repo)
     # Construct (mc, mr) matrix
     matrix = jnp.stack((mc_grid.flatten(), mr_grid.flatten()), axis=-1)
     # Return joined matrix

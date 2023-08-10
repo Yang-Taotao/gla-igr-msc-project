@@ -8,7 +8,6 @@ Created on Thu August 03 2023
 # Set XLA resource allocation
 import os
 # Use jax and persistent cache
-import jax
 import jax.numpy as jnp
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Plotter style customization
@@ -32,25 +31,24 @@ hp = gw_rpl.waveform_plus_restricted(fisher_params, f_sig)
 gp = gw_rpl.gradient_plus(fisher_params)
 detp = gw_fim.log10_sqrt_det(fisher_params)
 # First compilation - results checker
-print(f"Test waveform.shape:'{hp.shape}")
-print(f"Test gradient.shape:'{gp.shape}")
-print(f"Test log10.sqrt.det.FIM:'{detp:.4g}")
+print(f"Test waveform.shape:{hp.shape}")
+print(f"Test gradient.shape:{gp.shape}")
+print(f"Test log10.sqrt.det.FIM:{detp:.4g}")
 
 # %%
 # FIM density calc params
 # Cached shape - (100, 100, 1, 1)
-FIM_PARAM = gw_fim.fim_param_build(mcs, etas)
-print(f"FIM_PARAM.shape:{FIM_PARAM.shape}")
+fim_param = gw_fim.fim_param_build(mcs, etas)
+print(f"fim_param.shape:{fim_param.shape}")
 
 # %%
 # Density matrix batching
 # t~43.1s for (100, 100) shape
-batch_size = 50
-DENSITY = gw_fim.density_batch_calc(FIM_PARAM, mcs, etas, batch_size)
-print(f"Metric Density.shape:':{DENSITY.shape}")
+density = gw_fim.density_batch_calc(fim_param, mcs, etas, batch_size=50)
+print(f"Metric Density.shape:{density.shape}")
 
 # %%
 # Plot Generation
-gw_plt.fim_contour_mc_eta_log10(mcs, etas, DENSITY)
+gw_plt.fim_contour_mc_eta_log10(mcs, etas, density)
 
 # %%

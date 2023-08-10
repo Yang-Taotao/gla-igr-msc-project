@@ -26,11 +26,11 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
     # Param array - mc, eta, tc, phic
     param_arr = [mcs, etas, zeros, zeros]
     # Build 4-d mesh with matrix indexing
-    ND_PARAM = jnp.meshgrid(*param_arr, indexing='ij')
-    # Stack and reshape into (n, 4) shape FIM_PARAM array
-    FIM_PARAM = jnp.stack(ND_PARAM, axis=-1).reshape(-1, len(param_arr))
+    nd_param = jnp.meshgrid(*param_arr, indexing='ij')
+    # Stack and reshape into (n, 4) shape fim_param array
+    fim_param = jnp.stack(nd_param, axis=-1).reshape(-1, len(param_arr))
     # Func return
-    return FIM_PARAM
+    return fim_param
 
 
 # %%
@@ -44,10 +44,10 @@ def log10_sqrt_det(mceta: jnp.ndarray):
     Fisher matrix projected onto the mc, eta space
     """
     try:
-        G = projected_fim(mceta)
+        data_fim = projected_fim(mceta)
     except AssertionError:
-        G = jnp.nan
-    return jnp.log10(jnp.sqrt(jnp.linalg.det(G)))
+        data_fim = jnp.nan
+    return jnp.log10(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
 # %%
@@ -61,7 +61,7 @@ def density_batch_calc(
         batch_size: int = 100,
     ):
     """
-    Calculate DENSITY grid values with batching
+    Calculate DENSITY grid values with default batching size 100
     """
     # Define batch numbers
     num_batch = data.shape[0] // batch_size
@@ -75,9 +75,9 @@ def density_batch_calc(
         # Add to results
         density_list.append(batch_density)
     # Concatenate the results from smaller batches
-    DENSITY = jnp.concatenate(density_list).reshape([len(mcs), len(etas)])
+    density = jnp.concatenate(density_list).reshape([len(mcs), len(etas)])
     # Func return
-    return DENSITY
+    return density
 
 
 # %%
@@ -88,26 +88,28 @@ def projected_fim(params: jnp.ndarray):
     """
     Return the Fisher matrix projected onto the mc, eta space
     """
+    # Get full FIM and dimensions
     full_fim = fim(params)
-    Nd = params.shape[-1]
+    nd_val = params.shape[-1]
 
     # Calculate the conditioned matrix for phase
     # Equation 16 from Dent & Veitch
     gamma = jnp.array([
         full_fim[i, j] - full_fim[i, -1] * full_fim[-1, j] / full_fim[-1, -1]
-        for i in range(Nd-1)
-        for j in range(Nd-1)
-    ]).reshape([Nd-1, Nd-1])
+        for i in range(nd_val-1)
+        for j in range(nd_val-1)
+    ]).reshape([nd_val-1, nd_val-1])
 
     # Calculate the conditioned matrix for time
     # Equation 18 from Dent & Veitch
-    G = jnp.array([
+    data_fim = jnp.array([
         gamma[i, j] - gamma[i, -1] * gamma[-1, j] / gamma[-1, -1]
-        for i in range(Nd-2)
-        for j in range(Nd-2)
-    ]).reshape([Nd-2, Nd-2])
+        for i in range(nd_val-2)
+        for j in range(nd_val-2)
+    ]).reshape([nd_val-2, nd_val-2])
 
-    return G
+    # Func return
+    return data_fim
 
 
 def fim(params: jnp.ndarray):
@@ -123,26 +125,28 @@ def fim(params: jnp.ndarray):
     grads = gw_rpl.gradient_plus(params)
     # assert grads.shape[-2] == f_psd.shape[0]
 
-    #print("Computed gradients, shape ",grads.shape)
-    Nd = grads.shape[-1]
+    # print("Computed gradients, shape ",grads.shape)
+    # Get dimensions
+    nd_val = grads.shape[-1]
     # There should be no nans
     # assert jnp.isnan(grads).sum()==0
-    #if jnp.isnan(grads).sum()>0:
+    # if jnp.isnan(grads).sum()>0:
     #    print(f"NaN encountered in FIM calculation for ",mceta)
 
     # Compute their inner product
     # Calculate the independent matrix entries
     entries = {
         (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
-        for j in range(Nd)
+        for j in range(nd_val)
         for i in range(j+1)
     }
 
     # Fill the matrix from the precalculated entries
     fim_result = jnp.array([
         entries[tuple(sorted([i, j]))]
-        for j in range(Nd)
-        for i in range(Nd)
-    ]).reshape([Nd, Nd])
+        for j in range(nd_val)
+        for i in range(nd_val)
+    ]).reshape([nd_val, nd_val])
+
     # Func return
     return fim_result
