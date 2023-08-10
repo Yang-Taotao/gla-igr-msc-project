@@ -4,7 +4,6 @@ Plotter functions repository.
 # %%
 # Library import
 import jax.numpy as jnp
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import scienceplots
 # Plotter style customization
@@ -83,6 +82,7 @@ def ripple_waveform_plot(
     # Plot admin
     fig.savefig("./figures/fig_01_ripple_waveform.png")
 
+
 # %%
 # Ripple - grad plotter
 
@@ -116,6 +116,7 @@ def ripple_grad_plot_idx(
     # Plot admin
     fig.savefig("./figures/fig_02_ripple_waveform_grad.png")
 
+
 # %%
 # Bilby - psd plotter
 
@@ -135,6 +136,7 @@ def bilby_plot(f_sig: jnp.ndarray, data: jnp.ndarray):
     # Plot admin
     fig.savefig("./figures/fig_03_bilby_psd.png")
 
+
 # %%
 # FIM - matrix plotter
 
@@ -149,6 +151,7 @@ def fim_plot(data: jnp.ndarray):
     ax.set(xlabel=r"Columns: $\Theta_i$", ylabel=r"Rows: $\Theta_j$")
     # Plot admin
     fig.savefig("./figures/fig_04_fim_heatmap.png")
+
 
 # %%
 # FIM - hp mc mr
@@ -210,6 +213,7 @@ def fim_param_3d(
     fig.tight_layout()
     fig.savefig("./figures/fig_05_fim_mc_mr_3d.png")
 
+
 # %%
 # FIM - hp mc mr contour
 
@@ -240,4 +244,28 @@ def fim_contour_mc_mr(
     # Plot admin
     fig.tight_layout()
     fig.savefig("./figures/fig_06_fim_mc_mr_contour.png")
+
+
+def fim_contour_mc_mr_log10(data_x: jnp.ndarray, data_y: jnp.ndarray, data_z: jnp.ndarray):
+    # Plot init
+    fig, ax = plt.subplots(figsize=(8, 6))
+    # Plotter
+    cs = ax.contourf(
+        data_x, 
+        data_y, 
+        data_z.T,
+        alpha=0.8,
+        levels=20,
+        cmap='gist_heat',
+    )
+    # Plot customization
+    ax.set(
+        xlabel=r'Chirp Mass ($M_\odot$)', 
+        ylabel=r'Symmetric Mass Ratio $\eta$',
+    )
+    cb = plt.colorbar(cs, ax=ax)
+    cb.ax.set_ylabel(r'$\log_{10}$ Template Bank Density')
+    # Plot admin
+    fig.savefig("./figures/fig_06_fim_mc_mr_contour_log10.png")
+    
     

@@ -6,21 +6,18 @@ Configuration setup script.
 import jax
 import jax.numpy as jnp
 import bilby
+import main
 
 # %%
-# Config setup
-# ============================================================ #
+# Config import 
 # Frequency - min, max, step
-f_min, f_max, f_del = 24.0, 512.0, 0.5
+f_min, f_max, f_del = main.f_min, main.f_max, main.f_del
 # Chirp mass - min, max, step
-mc_min, mc_max, mc_del = 6.00, 31.0, 1.0
+mc_min, mc_max, mc_num = main.mc_min, main.mc_max, main.mc_num
 # Mass ratio - min, max, step
-mr_min, mr_max, mr_del = 0.01, 0.26, 0.01
-# Base theta - mc, mr, s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
-theta_base = jnp.array(
-    [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0]
-)
-# ============================================================ #
+eta_min, eta_max, eta_num = main.eta_min, main.eta_max, main.eta_num
+# Base theta - mc, eta, s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
+theta_base = main.theta_base
 
 # %%
 # Frequency array builder
@@ -57,6 +54,7 @@ def freq_psd(data_samp: float, data_dura: float):
     # Return psd as func result
     return detector.power_spectral_density_array[1:]
 
+
 # %%
 # Theta tuple builder
 
@@ -90,8 +88,8 @@ f_diff, f_samp, f_dura = freq_fisher(f_min, f_max, f_del)
 # Freq - bilby PSD results
 f_psd = freq_psd(f_samp, f_dura)
 # Chirp mass repo
-mc_repo = jnp.arange(mc_min, mc_max, mc_del)
+mcs = jnp.linspace(mc_min, mc_max, mc_num, dtype=jnp.float32)
 # Mass ratio repo
-mr_repo = jnp.arange(mr_min, mr_max, mr_del)
+etas = jnp.linspace(eta_min, eta_max, eta_num, dtype=jnp.float32)
 # Theta matrix result
-theta_repo = theta_ripple(mc_repo, mr_repo, theta_base)
+theta_repo = theta_ripple(mcs, etas, theta_base)

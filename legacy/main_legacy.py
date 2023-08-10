@@ -8,8 +8,8 @@ Created on Thu Jul 11 2023
 # %%
 # Section 0 - Library import
 import jax.numpy as jnp
-from data import gw_ripple, gw_fisher, gw_plotter
-from data.gw_config import f_sig, f_psd, mc_repo, mr_repo, theta_repo
+from data import gw_fim, gw_plotter, gw_rpl
+from data.gw_cfg import f_sig, f_psd, mc_repo, mr_repo, theta_repo
 
 # %%
 # Section 1.a -  Define GW Mock data theta
@@ -21,27 +21,27 @@ mock_theta = jnp.tile(mock_waveform_theta, (theta_repo.shape[0], 1))
 # %%
 # Section 1.b -  Mock GW data generate - waveform, grad
 # t ~ 3min58.8s - first compile
-mock_hp, mock_hc = gw_ripple.waveform(mock_waveform_theta)
-mock_hp_grad = gw_ripple.grad_plus(mock_theta)[0]
-mock_hc_grad = gw_ripple.grad_cros(mock_theta)[0]
+mock_hp, mock_hc = gw_rpl.waveform(mock_waveform_theta)
+mock_hp_grad = gw_rpl.grad_plus(mock_theta)[0]
+mock_hc_grad = gw_rpl.grad_cros(mock_theta)[0]
 mock_idx = jnp.array([0, 1])
 
 # %%
 # Section 1.c - Mock GW data generate - FIM, sqrt.det.fim
 data_idx = jnp.arange(len(mock_waveform_theta))
-mock_fim = gw_fisher.build_fim(mock_hp_grad, data_idx)
-mock_fim_sqrtdet = gw_fisher.sqrtdet_fim(mock_hp_grad, mock_idx)
+mock_fim = gw_fim.build_fim(mock_hp_grad, data_idx)
+mock_fim_sqrtdet = gw_fim.sqrtdet_fim(mock_hp_grad, mock_idx)
 
 # %%
 # Section 2.a - GW data generation - mc, mr - grad
 # t ~ 0.4s
-data_hp_grad_repo = gw_ripple.grad_plus(theta_repo)
-data_hc_grad_repo = gw_ripple.grad_cros(theta_repo)
+data_hp_grad_repo = gw_rpl.grad_plus(theta_repo)
+data_hc_grad_repo = gw_rpl.grad_cros(theta_repo)
 
 # %%
 # Section 2.b - GW data generation - mc, mr - sqrt.det.fim
-data_fim_hp_repo = gw_fisher.sqrtdet_fim(data_hp_grad_repo, mock_idx)
-data_fim_hc_repo = gw_fisher.sqrtdet_fim(data_hc_grad_repo, mock_idx)
+data_fim_hp_repo = gw_fim.sqrtdet_fim(data_hp_grad_repo, mock_idx)
+data_fim_hc_repo = gw_fim.sqrtdet_fim(data_hc_grad_repo, mock_idx)
 
 # %%
 # Section 3 - Plot generation

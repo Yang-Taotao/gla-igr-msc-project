@@ -5,7 +5,7 @@ Created on Thu Jul 21 2023
 
 @author: Yang-Taotao
 """
-from .gw_ripple import *
-from .gw_fisher import *
-from .gw_plotter import *
-from .gw_config import *
+from .gw_rpl import *
+from .gw_fim import *
+from .gw_plt import *
+from .gw_cfg import *
