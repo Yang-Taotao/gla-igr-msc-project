@@ -1,9 +1,0 @@
-{
-    "editor.renderWhitespace": "boundary",
-    "editor.defaultFormatter": "ms-python.pylint",
-    "editor.minimap.scale": 1,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "files.trimTrailingWhitespace": true,
-    "scm.defaultViewMode": "tree"
-}

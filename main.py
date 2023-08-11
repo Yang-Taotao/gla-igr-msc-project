@@ -10,16 +10,12 @@ import os
 # Use jax and persistent cache
 import jax.numpy as jnp
 from jax.experimental.compilation_cache import compilation_cache as cc
-# Plotter style customization
-import matplotlib.pyplot as plt
-import scienceplots
 # Custom packages
 from data import gw_fim, gw_plt, gw_rpl
 from data.gw_cfg import f_sig, mcs, etas
 # Setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 cc.initialize_cache("./data/__jaxcache__")
-plt.style.use(['science', 'notebook', 'grid'])
 
 # %%
 # First compilation
@@ -44,7 +40,7 @@ print(f"fim_param.shape:{fim_param.shape}")
 # %%
 # Density matrix batching
 # t~43.1s for (100, 100) shape
-density = gw_fim.density_batch_calc(fim_param, mcs, etas, batch_size=50)
+density = gw_fim.density_batch_calc(fim_param, mcs, etas, batch_size=100)
 print(f"Metric Density.shape:{density.shape}")
 
 # %%

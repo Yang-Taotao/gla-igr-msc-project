@@ -7,6 +7,8 @@ import os
 # Package - jax
 import jax
 import jax.numpy as jnp
+# Other imports
+from tqdm import tqdm
 # Custom config import
 from data import gw_rpl
 # XLA GPU resource setup
@@ -61,13 +63,13 @@ def density_batch_calc(
         batch_size: int = 100,
     ):
     """
-    Calculate DENSITY grid values with default batching size 100
+    Calculate metric density values with default batching size 100
     """
     # Define batch numbers
     num_batch = data.shape[0] // batch_size
     density_list = []
     # Batching
-    for i in range(num_batch):
+    for i in tqdm(range(num_batch)):
         # Split batches
         batch_fim_param = data[i * batch_size: (i + 1) * batch_size]
         # Call jax.vmap

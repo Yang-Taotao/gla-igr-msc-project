@@ -7,6 +7,9 @@ __jaxcache__/
 *.py[cod]
 *$py.class
 
+# VS Code
+*vscode/
+
 # C extensions
 *.so
 
