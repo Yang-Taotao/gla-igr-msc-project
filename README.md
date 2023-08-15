@@ -98,24 +98,31 @@ ang_inc, ang_pol = 0.0, 0.0
 ### Legacy figures
 
 - GW150914 waveform generated with ```ripplegw```
+
 > ![Test GW Waveform](./legacy/figures_legacy/fig_01_ripple_waveform.png)
 
 - GW150914 waveform gradient plot with ```jax.vmap(jax.grad())```
+
 > ![Test GW Waveform Gradient](./legacy/figures_legacy/fig_02_ripple_waveform_grad.png)
 
 - PSD aLIGO noise curve with ```bilby```
+
 > ![Detector PSD](./legacy/figures_legacy/fig_03_bilby_psd.png)
 
 - Fisher Information Matrix for test GW params
+
 > ![Test FIM Heat Map](./legacy/figures_legacy/fig_04_fim_heatmap.png)
 
 - Fisher Information Matrix wrt chirp mass and symmetric mass ratio
+
 > ![FIM 1-D](./legacy/figures_legacy/fig_05_fim_mc_mr.png)
 
 - Fisher Information Matrix contour plot
+
 > ![Density Contour Plot](./legacy/figures_legacy/fig_06_fim_mc_mr_contour.png)
 
 ### Active figures
 
-- Fisher Information Matrix contour plot at log_10 base
+- Fisher Information Matrix contour plot at \log_10 base
+
 > ![Projected Density Contour PLot](./legacy/figures_legacy/fig_06_fim_mc_mr_contour_log10.png)
