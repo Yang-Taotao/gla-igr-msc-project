@@ -42,7 +42,7 @@ def waveform_plus_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     Function to return restricted waveform_plus where params are:
     [Mc, eta, t_c, phi_c]
     '''
-    # Set complete ripple_theta 
+    # Set complete ripple_theta
     theta = theta_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
     # Generate plus polarized waveform
     h_plus, _ = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, f_ref)
@@ -73,7 +73,7 @@ def waveform_cros_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     Function to return restricted waveform_cros where params are:
     [Mc, eta, t_c, phi_c]
     '''
-    # Set complete ripple_theta 
+    # Set complete ripple_theta
     theta = theta_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
     # Generate cross polarized waveform
     _, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, f_ref)
