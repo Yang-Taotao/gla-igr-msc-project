@@ -20,6 +20,9 @@ eta_min, eta_max, eta_num = 0.050, 0.250, 100
 theta_base = jnp.array(
     [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0]
 )
+# Test param for FIM compilation
+mc, eta = 20, 0.2
+test_params = jnp.array([mc, eta, 0.0, 0.0])
 # ============================================================ #
 
 # %%

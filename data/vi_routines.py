@@ -65,7 +65,7 @@ def make_flow_model(
         """
         # Func return
         return distrax.RationalQuadraticSpline(
-            params, range_min=0.0, range_max=1.00,
+            params, range_min=0.0, range_max=1.0,
         )
 
     # Number of parameters for the rational-quadratic spline:

@@ -8,24 +8,26 @@ Created on Thu August 03 2023
 # Set XLA resource allocation
 import os
 # Use jax and persistent cache
-import jax.numpy as jnp
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Custom packages
 from data import gw_fim, gw_plt, gw_rpl
-from data.gw_cfg import f_sig, mcs, etas
+from data.gw_cfg import f_sig, mcs, etas, test_params
 # Setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 cc.initialize_cache("./data/__jaxcache__")
 
 # %%
 # First compilation
-# Parameters assignment - t~1min20s
-mc, eta = 20, 0.2
-fisher_params = jnp.array([mc, eta, 0.0, 0.0])
-# First compile if no persistent cache
-hp = gw_rpl.waveform_plus_restricted(fisher_params, f_sig)
-gp = gw_rpl.gradient_plus(fisher_params)
-detp = gw_fim.log10_sqrt_det(fisher_params)
+# t~1min20s
+# Wavefor generation
+hp = gw_rpl.waveform_plus_restricted(test_params, f_sig)
+hc = gw_rpl.waveform_cros_restricted(test_params, f_sig)
+# Gradient calculation
+gp = gw_rpl.gradient_plus(test_params)
+gc = gw_rpl.gradient_cros(test_params)
+# FIM test statistics calculation
+detp = gw_fim.log10_sqrt_det_plus(test_params)
+detc = gw_fim.log10_sqrt_det_cros(test_params)
 # First compilation - results checker
 print(f"Test waveform.shape:{hp.shape}")
 print(f"Test gradient.shape:{gp.shape}")

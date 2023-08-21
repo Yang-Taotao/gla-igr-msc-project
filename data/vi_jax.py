@@ -7,6 +7,8 @@ Source: https://github.com/dominika-zieba/VI/
 # %%
 # Libnrary import
 import os
+from typing import Any, Tuple
+from tqdm import trange
 import haiku as hk  # neural network library for JAX
 import optax
 import lal
@@ -14,8 +16,6 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 from jax.config import config
-from tqdm import trange
-from typing import Any, Tuple
 import matplotlib.pyplot as plt
 import corner
 # Custom import
@@ -25,135 +25,20 @@ os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 config.update("jax_enable_x64", True)
 # Aliasing
 Array = jnp.ndarray
-PRNGKey = Array
+PRNGKey = jnp.ndarray
 OptState = Any
 
 # %%
-# GW routines
+# LogLikelihood
 
+# Import results of the log10 based density
 
-# Without phase for now
-def simulate_fd_sine_gaussian_waveform(A, t0, f0, tau, times, fmin, df):
-    """
-    Missing docstring
-    """
-    t = times
+# It will have to be written in a way that
+# it can take an array of samples from the parameter space
+# and evaluates your density for each of them
 
-    # time domain plus polarisation
-    hpt = A*jnp.exp(-(t-t0)**2/tau**2)*jnp.cos(2*jnp.pi*f0*t)
-    # time domain cros polarisation
-    hct = A*jnp.exp(-(t-t0)**2/tau**2)*jnp.sin(2*jnp.pi*f0*t)
-
-    # frequency domain plus polarisation
-    hp = jnp.fft.rfft(hpt)
-    # frequency domain cros polarisation
-    hc = jnp.fft.rfft(hct)
-
-    # Func return
-    return hp, hc
-
-
-def project_to_detector(detector, hp, hc, ra, dec, gmst_rad, psi):
-    """
-    Compute the response of the detector to incoming strain
-    """
-    # Func return
-    return response[detector](
-        jnp.atleast_2d(H1.freqs), hp, hc, ra, dec, gmst_rad, psi)
-
-# %%
-# Likelihood class
-
-
-class LogL(object):
-
-
-    def __init__(self, true_gw_params):
-
-        self.true_gw_params = true_gw_params
-        self.detectors = {'H1': H1, 'L1': L1}
-
-        gps_time = true_gw_params['t0']  # time of coalescence
-        gps = lal.LIGOTimeGPS(gps_time)
-        self.gmst_rad = lal.GreenwichMeanSiderealTime(gps)
-
-        self.A = true_gw_params['A']
-        self.t0 = true_gw_params['t0']
-        self.f0 = true_gw_params['f0']
-        self.tau = true_gw_params['tau']
-        self.ra = jnp.atleast_1d(true_gw_params['ra'])
-        self.dec = jnp.atleast_1d(true_gw_params['dec'])
-        self.psi = jnp.atleast_1d(true_gw_params['psi'])
-
-        self.f_min = 0.
-        self.times = H1.times
-        self.df = H1.df
-        self.times2d = jnp.atleast_2d(H1.times)
-
-        self.hp, self.hc = simulate_fd_sine_gaussian_waveform(
-            self.A, self.t0, self.f0, self.tau, H1.times, self.f_min, H1.df,
-        )
-        self.data = self.simulate_response(
-            self.hp, self.hc, self.ra, self.dec, self.psi,
-        )
-
-
-    def simulate_response(self, hp, hc, ra, dec, psi):
-        """
-        Missing docstring
-        """
-        r = {d: project_to_detector(
-                d, hp, hc, ra, dec, self.gmst_rad, psi
-            ) for d in self.detectors.keys()}
-        # Func return
-        return r
-
-
-    def __call__(self, params):
-        """
-        Missing docstring
-        """
-        hp, hc = simulate_fd_sine_gaussian_waveform(
-            jnp.atleast_2d(params['A']).T,
-            self.t0,
-            self.f0,
-            self.tau,
-            self.times2d,
-            self.f_min,
-            self.df,
-        )
-
-        r = self.simulate_response(
-            hp, hc, params['ra'], params['dec'], params['psi'])
-
-        residuals = jnp.array([r[ifo] - self.data[ifo]
-                              for ifo in self.detectors.keys()])
-        # Func return
-        return -jnp.real(jnp.sum(residuals*jnp.conj(residuals), axis=(0, 2)))/2
-
-
-    @property
-    def params(self):
-        """
-        Missing docstring
-        """
-        params = ['A', 'ra', 'dec', 'psi']
-        # Func return
-        return params
-
-
-    #@jax.jit
-    def array_to_phys(self, x: Array) -> dict:
-        """
-        Missing docstring
-        """
-        p = dict()
-        p['A'] = x[:, 0]
-        p['ra'] = x[:, 1]*2*jnp.pi  # [0,2pi]
-        p['dec'] = (x[:, 2]-0.5)*jnp.pi  # [-pi/2,pi/2]
-        p['psi'] = (x[:, 3]-0.5)*jnp.pi  # [-pi/2,pi/2]
-        # Func return
-        return p
+# Do it ideally as operations on vectors and not a for loop
+# because the for loop will not work well in jax
 
 # %%
 # Training setup
@@ -177,27 +62,22 @@ def sample_and_log_prob(prng_key: PRNGKey, n: int) -> Tuple[Any, Array]:
     # and model.log_prob(x) (array of log(q) of th sampled points)
 
 
-def log_prob(x: Array) -> Array:
-    """
-    Missing docstring
-    """
-    p = log_l.array_to_phys(x)
-    return log_l(p) + jnp.log(jnp.cos(p['dec']))
-
-
-# computes reverse KL-divergence for the sample x_flow
+# Computes reverse KL-divergence for the sample x_flow
 # between the flow and gw loglikelihood.
 def loss_fn(params: hk.Params, prng_key: PRNGKey, n: int) -> Array:
     """
     Missing docstring
     """
-    # gets sample from the flow and computes log_q for the sampled points.
+    # Gets sample from the flow and computes log_q for the sampled points.
     x_flow, log_q = sample_and_log_prob.apply(params, prng_key, n)
     # log_p = log_likelihood(x_flow)
-    log_p = log_prob(x_flow)
-    # gets gw loglikelihood for the sampled points
+
+    log_p = # insert log density here
+
+    # Gets gw loglikelihood for the sampled points
     # (after transforming them into physical space..)
     loss_result = jnp.mean(log_q - log_p)
+    # Func return
     return loss_result
 
 
