@@ -11,7 +11,7 @@ import os
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Custom packages
 from data import gw_fim, gw_plt, gw_rpl
-from data.gw_cfg import f_sig, mcs, etas, test_params
+from data.gw_cfg import f_sig, f_psd, mcs, etas, test_params
 # Setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 cc.initialize_cache("./data/__jaxcache__")
@@ -29,9 +29,9 @@ gc = gw_rpl.gradient_cros(test_params)
 detp = gw_fim.log10_sqrt_det_plus(test_params)
 detc = gw_fim.log10_sqrt_det_cros(test_params)
 # First compilation - results checker
-print(f"Test waveform.shape:{hp.shape}")
-print(f"Test gradient.shape:{gp.shape}")
-print(f"Test log10.sqrt.det.FIM:{detp:.4g}")
+print(f"Test waveform hp.shape:{hp.shape} hc.shape:{hc.shape}")
+print(f"Test gradient gp.shape:{gp.shape} gc.shape:{gc.shape}")
+print(f"Test log10 density detp:{detp:.4g} detc:{detp:.4g}")
 
 # %%
 # FIM density calc params
@@ -42,11 +42,21 @@ print(f"fim_param.shape:{fim_param.shape}")
 # %%
 # Density matrix batching
 # t~43.1s for (100, 100) shape
-density = gw_fim.density_batch_calc(fim_param, mcs, etas, batch_size=100)
-print(f"Metric Density.shape:{density.shape}")
+density_p = gw_fim.density_batch_calc(
+    fim_param, mcs, etas, batch_size=100, waveform="hp")
+density_c = gw_fim.density_batch_calc(
+    fim_param, mcs, etas, batch_size=100, waveform="hc")
+print(f"Metric density_p.shape:{density_p.shape}")
+print(f"Metric density_c.shape:{density_c.shape}")
 
 # %%
 # Plot Generation
-gw_plt.fim_contour_mc_eta_log10(mcs, etas, density)
+gw_plt.ripple_waveform(f_sig, hp, waveform="hp")
+gw_plt.ripple_waveform(f_sig, hc, waveform="hc")
+gw_plt.ripple_gradient(f_sig, hp, hc, param="mc")
+gw_plt.ripple_gradient(f_sig, hp, hc, param="eta")
+gw_plt.bilby_noise_psd(f_sig, f_psd)
+gw_plt.log_fim_contour(mcs, etas, density_p, waveform="hp")
+gw_plt.log_fim_contour(mcs, etas, density_c, waveform="hc")
 
 # %%
