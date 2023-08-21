@@ -72,19 +72,20 @@ def log10_sqrt_det_cros(mceta: jnp.ndarray):
 
 
 def density_batch_calc(
-        data: jnp.ndarray,
-        mcs: jnp.ndarray,
-        etas: jnp.ndarray,
-        batch_size: int = 100,
-        waveform: str = "hp",
-    ):
+    data: jnp.ndarray,
+    mcs: jnp.ndarray,
+    etas: jnp.ndarray,
+    batch_size: int = 100,
+    waveform: str = "hp",
+):
     """
     Calculate metric density values with default batching size 100
+    Default at waveform hp results
     """
     # Select waveform
-    if waveform == "hp":
+    if waveform == 'hp':
         wf_func = log10_sqrt_det_plus
-    else:
+    elif waveform == 'hc':
         wf_func = log10_sqrt_det_cros
     # Define batch numbers
     num_batch = data.shape[0] // batch_size
@@ -170,6 +171,29 @@ def projected_fim_cros(params: jnp.ndarray):
     # Func return
     return metric
 
+# %%
+# FIM packers
+
+
+def fim_base(grads: jnp.ndarray, nd_val: int):
+    """
+    Basic FIM entry packer
+    """
+    # Get FIM entries from inner products calculations
+    entries = {
+        (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
+        for j in range(nd_val)
+        for i in range(j+1)
+    }
+    # Fill the matrix from the precalculated entries
+    fim_result = jnp.array([
+        entries[tuple(sorted([i, j]))]
+        for j in range(nd_val)
+        for i in range(nd_val)
+    ]).reshape([nd_val, nd_val])
+    # Func return
+    return fim_result
+
 
 def fim_plus(params: jnp.ndarray):
     """
@@ -193,21 +217,8 @@ def fim_plus(params: jnp.ndarray):
     # if jnp.isnan(grads).sum()>0:
     #    print(f"NaN encountered in FIM calculation for ",mceta)
 
-    # Compute their inner product
-    # Calculate the independent matrix entries
-    entries = {
-        (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
-        for j in range(nd_val)
-        for i in range(j+1)
-    }
-
-    # Fill the matrix from the precalculated entries
-    fim_result = jnp.array([
-        entries[tuple(sorted([i, j]))]
-        for j in range(nd_val)
-        for i in range(nd_val)
-    ]).reshape([nd_val, nd_val])
-
+    # Get FIM result
+    fim_result = fim_base(grads, nd_val)
     # Func return
     return fim_result
 
@@ -234,20 +245,7 @@ def fim_cros(params: jnp.ndarray):
     # if jnp.isnan(grads).sum()>0:
     #    print(f"NaN encountered in FIM calculation for ",mceta)
 
-    # Compute their inner product
-    # Calculate the independent matrix entries
-    entries = {
-        (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
-        for j in range(nd_val)
-        for i in range(j+1)
-    }
-
-    # Fill the matrix from the precalculated entries
-    fim_result = jnp.array([
-        entries[tuple(sorted([i, j]))]
-        for j in range(nd_val)
-        for i in range(nd_val)
-    ]).reshape([nd_val, nd_val])
-
+    # Get FIM result
+    fim_result = fim_base(grads, nd_val)
     # Func return
     return fim_result

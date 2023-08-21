@@ -9,21 +9,19 @@ import bilby
 
 # %%
 # Config setup
-# ============================================================ #
+# =========================================================================== #
 # Frequency - min, max, step
 f_min, f_max, f_del = 24.0, 512.0, 0.5
 # Chirp mass - min, max, step
 mc_min, mc_max, mc_num = 1.000, 21.00, 100
 # Mass ratio - min, max, step
 eta_min, eta_max, eta_num = 0.050, 0.250, 100
-# Base theta - mc, eta, s1, s2, dist_mpc, c_time, c_phas, ang_inc, and_pol
-theta_base = jnp.array(
-    [28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0]
-)
+# Base theta - mc, eta, s1, s2, dl, tc, phic, theta, phi
+theta_base = jnp.array([28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
 # Test param for FIM compilation
 mc, eta = 20, 0.2
 test_params = jnp.array([mc, eta, 0.0, 0.0])
-# ============================================================ #
+# =========================================================================== #
 
 # %%
 # Frequency array builder
@@ -66,10 +64,10 @@ def freq_psd(data_samp: float, data_dura: float):
 
 
 def theta_ripple(
-        mc_repo: jnp.ndarray,
-        mr_repo: jnp.ndarray,
-        theta: jnp.ndarray,
-    ):
+    mc_repo: jnp.ndarray,
+    mr_repo: jnp.ndarray,
+    theta: jnp.ndarray,
+):
     '''
     Create matrix of ripplegw theta arguments
     '''
