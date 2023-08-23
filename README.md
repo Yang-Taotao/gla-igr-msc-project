@@ -174,8 +174,8 @@ gw_plt.log_fim_contour(mcs, etas, density_c, waveform="hc")
 
 - GW150914 simulated gradient with ```jax.vmap(jax.grad())```
 
-> ![Test gradient plus](./figures/ripple_gp.png)
-> ![Test gradient cros](./figures/ripple_gc.png)
+> ![Test gradient wrt chirp mass](./figures/ripple_grad_mc.png)
+> ![Test gradient wrt mass ratio](./figures/ripple_grad_eta.png)
 
 - Power Spectral Density of aLIGO from ```bilby```
 

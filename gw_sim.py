@@ -1,5 +1,5 @@
 """
-This is the variational inference normalizing flow script for MSc project.
+This is the variational inference normalizing flow model for MSc project.
 
 Created on Thu August 23 2023
 """
@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 import scienceplots
 import corner
 from PIL import Image
+
+# Setup options
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 jax.config.update("jax_enable_x64", True)
@@ -28,7 +30,6 @@ plt.style.use(['science', 'notebook', 'grid'])
 # Aliasing
 PRNGKey = jnp.ndarray
 OptState = Any
-
 
 # Flow results gif plotter
 
@@ -74,7 +75,7 @@ def make_gif(data_flow):
 
 class BivariateVonMises:
     """
-    Class docstrings here
+    Original BVM class
     """
     def __init__(self, loc, concentration, correlation):
         self.data_mu, self.data_nu = loc
@@ -85,6 +86,8 @@ class BivariateVonMises:
     # Target dist, need to switch to working dist of fim density
     def log_prob(self, data_x):
         '''
+        Get the log probability distribution
+
         Take in 2d param
         Feed 2d param to external func for some density result (dtype: float ish)
         The float is the return of log_prob()
@@ -103,7 +106,7 @@ class BivariateVonMises:
 
     def prob(self, data_x):
         """
-        Missing docstrings
+        Get probability distribution
         """
         # Func return - examine log_prob(input), the input may be inverted
         return jnp.exp(self.log_prob(data_x))
@@ -273,12 +276,11 @@ if __name__ == '__main__':
 
     # Name of the run, require more info for usage
     # RUN_NAME = sys.argv[1]
-
+# =========================================================================== #
     # Target distribution. Bivariate von Mises distribution on a 2-Torus.
     LOC = [0.0, 0.0]
     CONCENTRATION = [4.0, 4.0]
     CORRELATION = 0.0
-    dist = BivariateVonMises(LOC, CONCENTRATION, CORRELATION)
 
     # Flow parameters
     NUM_PARAMS = 2
@@ -287,12 +289,12 @@ if __name__ == '__main__':
     NUM_MLP_LAYERS = 2
     NUM_BINS = 4
 
-    # perform variational inference
+    # Perform variational inference
     TOTAL_EPOCHS = 300 #reduce this for testing purpose, original val = 10000
-    loss = {"train": [], "val": []}
     NUM_SAMPLES = 1000
-
     LEARNING_RATE = 0.001
+# =========================================================================== #
+    dist = BivariateVonMises(LOC, CONCENTRATION, CORRELATION)
     optimiser = optax.adam(LEARNING_RATE)
 
     prng_seq = hk.PRNGSequence(42)
@@ -300,6 +302,7 @@ if __name__ == '__main__':
     data_param = sample_and_log_prob.init(key, prng_key=key, data_n=NUM_SAMPLES)
     data_opt_state = optimiser.init(data_param)
 
+    loss = {"train": [], "val": []}
     ldict = {"loss": 0}
     losses = []
     flows = []
@@ -323,7 +326,7 @@ if __name__ == '__main__':
                 # Print results
                 print(f'At epoch: {epoch}, with loss: {loss}')
     # Print if complete
-    print("Complete.")
+    print("Accomplished.")
 
     # Save plot of the final posterior
     x_gen, log_prob_gen = sample_and_log_prob.apply(

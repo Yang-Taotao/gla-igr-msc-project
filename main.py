@@ -26,8 +26,8 @@ hc = gw_rpl.waveform_cros_restricted(param_test, f_sig)
 gp = gw_rpl.gradient_plus(param_test)
 gc = gw_rpl.gradient_cros(param_test)
 # FIM test statistics calculation
-detp = gw_fim.log10_sqrt_det_plus(param_test)
-detc = gw_fim.log10_sqrt_det_cros(param_test)
+detp = gw_fim.log_sqrt_det_plus(param_test)
+detc = gw_fim.log_sqrt_det_cros(param_test)
 # First compilation - results checker
 print(f"Test waveform hp.shape:{hp.shape} hc.shape:{hc.shape}")
 print(f"Test gradient gp.shape:{gp.shape} gc.shape:{gc.shape}")

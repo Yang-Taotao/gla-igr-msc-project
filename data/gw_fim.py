@@ -34,13 +34,13 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
     return fim_param
 
 
-# FIM - Main ==> log10.sqrt.det.FIM
+# FIM - Main ==> log.sqrt.det.FIM
 
 
 @jax.jit
-def log10_sqrt_det_plus(mceta: jnp.ndarray):
+def log_sqrt_det_plus(mceta: jnp.ndarray):
     """
-    Return the log10 based square root of the determinant of
+    Return the log based square root of the determinant of
     Fisher matrix projected onto the mc, eta space
     for hp waveform results
     """
@@ -48,13 +48,13 @@ def log10_sqrt_det_plus(mceta: jnp.ndarray):
         data_fim = projected_fim_plus(mceta)
     except AssertionError:
         data_fim = jnp.nan
-    return jnp.log10(jnp.sqrt(jnp.linalg.det(data_fim)))
+    return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
 @jax.jit
-def log10_sqrt_det_cros(mceta: jnp.ndarray):
+def log_sqrt_det_cros(mceta: jnp.ndarray):
     """
-    Return the log10 based square root of the determinant of
+    Return the log based square root of the determinant of
     Fisher matrix projected onto the mc, eta space
     for hc waveform results
     """
@@ -62,7 +62,7 @@ def log10_sqrt_det_cros(mceta: jnp.ndarray):
         data_fim = projected_fim_cros(mceta)
     except AssertionError:
         data_fim = jnp.nan
-    return jnp.log10(jnp.sqrt(jnp.linalg.det(data_fim)))
+    return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
 # FIM - Main ==> Batching
@@ -81,9 +81,9 @@ def density_batch_calc(
     """
     # Select waveform
     if waveform == 'hp':
-        wf_func = log10_sqrt_det_plus
+        wf_func = log_sqrt_det_plus
     elif waveform == 'hc':
-        wf_func = log10_sqrt_det_cros
+        wf_func = log_sqrt_det_cros
     # Define batch numbers
     num_batch = data.shape[0] // batch_size
     density_list = []
