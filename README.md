@@ -3,25 +3,22 @@
 This is the degree project for *MSc in Astrophysics* at *University of Glasgow*.
 
 - Initialized: May 30, 2023
-- Editted: August 21, 2023
+- Editted: August 23, 2023
 
 [//]: # "========================================================================"
 
 ## Purpose
 
-- Using ```jax``` ```ripplegw``` ```bilby``` to construct FIM calculation script
-- Use ```jax``` with ```CUDA``` support for ```@jax.jit``` compilations
-- Employ ```jax.grad()``` for automatic gradient calculations
-- Use normalizing flow for approximating template bank placement density
+Use normalizing flow for approximating gravitational wave template bank density on 2-D parameter space
 
 ### Working scripts
 
-- FIM density for plus polarized GW waveform with respect to $M_c$ and $\eta$
+- Template density for polarized GW waveform with respect to $\mathcal{M}$ and $\eta$
+- Normalizing flow script - *under maintainance*
 
 ### Work in progress
 
-- Normalizing flow model
-- Normalizing flow training script
+- Normalizing flow script
 
 [//]: # "========================================================================"
 
@@ -37,12 +34,10 @@ This is the degree project for *MSc in Astrophysics* at *University of Glasgow*.
 - ```jax```
 - ```ripplegw```
 - ```bilby```
-
-### Normalizing flow dependencies
-
 - ```haiku```
 - ```distrax```
 - ```optax```
+- ```scienceplots```
 
 [//]: # "========================================================================"
 
@@ -104,33 +99,11 @@ $$g_{kl} = \gamma_{kl} - \frac{\gamma_{{t_c}k}\gamma_{{t_c}l}}{\gamma_{{t_c}{t_c
 │   ├── gw_fim.py
 │   ├── gw_plt.py
 │   ├── gw_rpl.py
-│   ├── vi_jax.py
-│   ├── vi_jax_original.py
-│   └── vi_routines.py
+│   └── gw_sim.py
 ├── figures
-│   ├── bilby_psd.png
-│   ├── log_fim_contour_hc.png
-│   ├── log_fim_contour_hp.png
-│   ├── ripple_gc.png
-│   ├── ripple_gp.png
-│   ├── ripple_hc.png
-│   ├── ripple_hp.png
-│   ├── rippleeta.png
-│   └── ripplemc.png
+├── results
 ├── legacy
-│   ├── data_legacy
-│   │   └── gw_plotter.py
-│   ├── figures_legacy
-│   │   ├── fig_01_ripple_waveform.png
-│   │   ├── fig_02_ripple_waveform_grad.png
-│   │   ├── fig_03_bilby_psd.png
-│   │   ├── fig_04_fim_heatmap.png
-│   │   ├── fig_05_fim_mc_mr.png
-│   │   ├── fig_06_fim_mc_mr_contour.png
-│   │   ├── fig_06_fim_mc_mr_contour_alternative.png
-│   │   └── fig_06_fim_mc_mr_contour_log10.png
-│   └── main_legacy.py
-└── main.py
+├── main.py
 ```
 
 [//]: # "========================================================================"
