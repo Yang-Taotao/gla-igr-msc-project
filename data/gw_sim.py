@@ -57,8 +57,8 @@ def make_gif(data_flow):
     frame_one = frames[0]
     # Save fig
     frame_one.save(
-        #f'./results/{RUN_NAME}_animation.gif',
-        './results/flow_animation.gif',
+        #f'../results/{RUN_NAME}_animation.gif',
+        '../results/flow_animation.gif',
         format="GIF",
         append_images=frames,
         save_all=True,
@@ -332,21 +332,21 @@ if __name__ == '__main__':
         100*NUM_SAMPLES,
     )
     fig = corner.corner(np.array(x_gen))
-    # plt.savefig(f'./results/{RUN_NAME}_posterior.png')
-    plt.savefig('./results/flow_posterior.png')
+    # plt.savefig(f'../results/{RUN_NAME}_posterior.png')
+    plt.savefig('../results/flow_posterior.png')
     plt.close()
 
     # Save plot of the loss
     plt.plot(losses)
     plt.xlabel("Iteration")
     plt.ylabel("Loss")
-    # plt.savefig(f'./results/{RUN_NAME}_loss.png')
-    plt.savefig('./results/flow_loss.png')
+    # plt.savefig(f'../results/{RUN_NAME}_loss.png')
+    plt.savefig('../results/flow_loss.png')
     plt.close()
 
     # Save loss array
-    # f = open(f'./results/{RUN_NAME}_loss.npy', 'wb')
-    f = open('./results/flow_loss.npy', 'wb')
+    # f = open(f'../results/{RUN_NAME}_loss.npy', 'wb')
+    f = open('../results/flow_loss.npy', 'wb')
     np.save(f,np.array(losses))
     f.close()
 
