@@ -3,11 +3,9 @@ This is the variational inference normalizing flow script for MSc project.
 
 Created on Thu August 23 2023
 """
-# %%
 # Library import
 import os
 import io
-import sys
 from typing import Any, Sequence, Tuple
 import haiku as hk
 from tqdm import trange
@@ -31,7 +29,7 @@ plt.style.use(['science', 'notebook', 'grid'])
 PRNGKey = jnp.ndarray
 OptState = Any
 
-# %%
+
 # Flow results gif plotter
 
 
@@ -43,7 +41,7 @@ def make_gif(data_flow):
     frames = []
     # Frame generation
     # for i in range(len(data_flow)):
-    for flow in enumerate(data_flow):
+    for _, flow in enumerate(data_flow):
         # Plot epoch related flow results
         corner.corner(flow)
         # Create frame buffer
@@ -59,7 +57,8 @@ def make_gif(data_flow):
     frame_one = frames[0]
     # Save fig
     frame_one.save(
-        f'results/{RUN_NAME}/{RUN_NAME}_animation.gif',
+        #f'./results/{RUN_NAME}_animation.gif',
+        './results/flow_animation.gif',
         format="GIF",
         append_images=frames,
         save_all=True,
@@ -70,7 +69,6 @@ def make_gif(data_flow):
     img_buf.close()
 
 
-# %%
 # Flow Class - LogL
 
 
@@ -111,7 +109,6 @@ class BivariateVonMises:
         return jnp.exp(self.log_prob(data_x))
 
 
-# %%
 # Flow model
 
 
@@ -269,13 +266,13 @@ def update(
     return new_params, new_opt_state
 
 
-# %%
 # Flow Class - Training
 
 
 if __name__ == '__main__':
 
-    RUN_NAME = sys.argv[1] #name of the run
+    # Name of the run, require more info for usage
+    # RUN_NAME = sys.argv[1]
 
     # Target distribution. Bivariate von Mises distribution on a 2-Torus.
     LOC = [0.0, 0.0]
@@ -291,7 +288,7 @@ if __name__ == '__main__':
     NUM_BINS = 4
 
     # perform variational inference
-    TOTAL_EPOCHS = 1000 #reduce this for testing purpose, original val = 10000
+    TOTAL_EPOCHS = 300 #reduce this for testing purpose, original val = 10000
     loss = {"train": [], "val": []}
     NUM_SAMPLES = 1000
 
@@ -300,7 +297,7 @@ if __name__ == '__main__':
 
     prng_seq = hk.PRNGSequence(42)
     key = next(prng_seq)
-    data_param = sample_and_log_prob.init(key, prng_key=key, n=NUM_SAMPLES)
+    data_param = sample_and_log_prob.init(key, prng_key=key, data_n=NUM_SAMPLES)
     data_opt_state = optimiser.init(data_param)
 
     ldict = {"loss": 0}
@@ -335,20 +332,23 @@ if __name__ == '__main__':
         100*NUM_SAMPLES,
     )
     fig = corner.corner(np.array(x_gen))
-    plt.savefig(f'results/{RUN_NAME}/{RUN_NAME}_posterior.png')
+    # plt.savefig(f'./results/{RUN_NAME}_posterior.png')
+    plt.savefig('./results/flow_posterior.png')
     plt.close()
 
     # Save plot of the loss
     plt.plot(losses)
     plt.xlabel("Iteration")
-    plt.ylabel("loss")
-    plt.savefig(f'results/{RUN_NAME}/{RUN_NAME}_loss.png')
+    plt.ylabel("Loss")
+    # plt.savefig(f'./results/{RUN_NAME}_loss.png')
+    plt.savefig('./results/flow_loss.png')
     plt.close()
 
-    #save loss array
-    f = open(f'results/{RUN_NAME}/{RUN_NAME}_loss.npy', 'wb')
+    # Save loss array
+    # f = open(f'./results/{RUN_NAME}_loss.npy', 'wb')
+    f = open('./results/flow_loss.npy', 'wb')
     np.save(f,np.array(losses))
     f.close()
 
-    #plot animation of the flows
+    # Plot animation of the flows
     make_gif(flows)
