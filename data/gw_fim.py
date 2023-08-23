@@ -206,18 +206,9 @@ def fim_plus(params: jnp.ndarray):
         params (array): [Mc, eta, t_c, phi_c]. Shape 1x4
     """
     # Generate the waveform derivatives
-    # assert params.shape[-1] == 4
     grads = gw_rpl.gradient_plus(params)
-    # assert grads.shape[-2] == f_psd.shape[0]
-
-    # print("Computed gradients, shape ",grads.shape)
     # Get dimensions
     nd_val = grads.shape[-1]
-    # There should be no nans
-    # assert jnp.isnan(grads).sum()==0
-    # if jnp.isnan(grads).sum()>0:
-    #    print(f"NaN encountered in FIM calculation for ",mceta)
-
     # Get FIM result
     fim_result = fim_base(grads, nd_val)
     # Func return
@@ -234,18 +225,9 @@ def fim_cros(params: jnp.ndarray):
         params (array): [Mc, eta, t_c, phi_c]. Shape 1x4
     """
     # Generate the waveform derivatives
-    # assert params.shape[-1] == 4
     grads = gw_rpl.gradient_cros(params)
-    # assert grads.shape[-2] == f_psd.shape[0]
-
-    # print("Computed gradients, shape ",grads.shape)
     # Get dimensions
     nd_val = grads.shape[-1]
-    # There should be no nans
-    # assert jnp.isnan(grads).sum()==0
-    # if jnp.isnan(grads).sum()>0:
-    #    print(f"NaN encountered in FIM calculation for ",mceta)
-
     # Get FIM result
     fim_result = fim_base(grads, nd_val)
     # Func return

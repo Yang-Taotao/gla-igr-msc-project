@@ -24,13 +24,11 @@ def inner_prod(vec_a: jnp.ndarray, vec_b: jnp.ndarray):
     """
     Noise weighted inner product between vectors a and b
     """
+    # Get components
     numerator = jnp.abs(vec_a.conj()*vec_b)
-    # assert jnp.isnan(numerator).sum() == 0
     integrand = numerator / f_psd
-    # assert jnp.isnan(integrand).sum() == 0
-    result = 4 * f_diff * integrand.sum(axis=-1)
-    # assert not jnp.isnan(result)
-    return result
+    # Return one side noise weighted inner products
+    return 4 * f_diff * integrand.sum(axis=-1)
 
 
 # %%
