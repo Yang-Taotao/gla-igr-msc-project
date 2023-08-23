@@ -1,7 +1,6 @@
 """
 Fisher Information Matrix calculator functions.
 """
-# %%
 # Library import
 import os
 # Package - jax
@@ -15,7 +14,6 @@ from data import gw_rpl
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 jax.config.update("jax_enable_x64", True)
 
-# %%
 # FIM - Parameter assembler
 
 
@@ -36,7 +34,6 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
     return fim_param
 
 
-# %%
 # FIM - Main ==> log10.sqrt.det.FIM
 
 
@@ -68,7 +65,6 @@ def log10_sqrt_det_cros(mceta: jnp.ndarray):
     return jnp.log10(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
-# %%
 # FIM - Main ==> Batching
 
 
@@ -105,7 +101,6 @@ def density_batch_calc(
     return density
 
 
-# %%
 # FIM projection sub func
 
 
@@ -137,7 +132,6 @@ def fim_metric(gamma: jnp.ndarray, nd_val: int):
     return metric
 
 
-# %%
 # FIM - Projected and simple FIM
 
 
@@ -172,7 +166,7 @@ def projected_fim_cros(params: jnp.ndarray):
     # Func return
     return metric
 
-# %%
+
 # FIM packers
 
 

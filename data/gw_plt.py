@@ -1,7 +1,6 @@
 """
 Plotter functions repository.
 """
-# %%
 # Library import
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -9,9 +8,6 @@ import scienceplots
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
 
-# Current status: mostly hardcoded plotting scripts
-
-# %%
 # FIM plots
 
 
@@ -51,7 +47,6 @@ def log_fim_contour(
     fig.savefig(save_path)
 
 
-# %%
 # Waveform and gradient
 
 
@@ -142,7 +137,6 @@ def ripple_gradient(
     fig.savefig(save_path)
 
 
-# %%
 # PSD from bilby
 
 
@@ -173,5 +167,3 @@ def bilby_noise_psd(data_x: jnp.ndarray, data_y: jnp.ndarray):
     fig.tight_layout()
     # Plot admin
     fig.savefig(save_path)
-
-# %%

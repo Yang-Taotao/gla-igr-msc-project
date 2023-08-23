@@ -1,7 +1,6 @@
 """
 GW waveform and gradient calculator functions.
 """
-# %%
 # Library import
 import os
 # Package - jax
@@ -15,7 +14,6 @@ from data.gw_cfg import f_sig, f_ref, param_base, f_psd, f_diff
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 jax.config.update("jax_enable_x64", True)
 
-# %%
 # Ripple - Inner Product Handler
 
 
@@ -31,7 +29,6 @@ def inner_prod(vec_a: jnp.ndarray, vec_b: jnp.ndarray):
     return 4 * f_diff * integrand.sum(axis=-1)
 
 
-# %%
 # Ripple - Get waveform_plus -> restricted and normalized
 
 
@@ -62,7 +59,6 @@ def waveform_plus_normed(params: jnp.ndarray, freq: jnp.ndarray):
     return waveform / jnp.sqrt(norm_factor_squared)
 
 
-# %%
 # Ripple - Get waveform_cros -> restricted and normalized
 
 
@@ -93,7 +89,6 @@ def waveform_cros_normed(params: jnp.ndarray, freq: jnp.ndarray):
     return waveform / jnp.sqrt(norm_factor_squared)
 
 
-# %%
 # Ripple - Gradient Calculator
 
 
@@ -105,8 +100,10 @@ def gradient_plus(theta: jnp.ndarray):
     # Assemble params -- FutureWarning: dtype complex128 -> float64 imcompatible
     params = jnp.array(theta, dtype=jnp.complex128)
     # Return gradiant func mapped to signal frequency array
-    return jax.vmap(jax.grad(waveform_plus_normed, holomorphic=True),
-                    in_axes=(None, 0))(params, f_sig)
+    return jax.vmap(
+        jax.grad(waveform_plus_normed, holomorphic=True),
+        in_axes=(None, 0),
+    )(params, f_sig)
 
 
 @jax.jit
@@ -118,5 +115,7 @@ def gradient_cros(theta: jnp.ndarray):
     # FutureWarning: dtype complex128 -> float64 imcompatible
     params = jnp.array(theta, dtype=jnp.complex128)
     # Return gradiant func mapped to signal frequency array
-    return jax.vmap(jax.grad(waveform_cros_normed, holomorphic=True),
-                    in_axes=(None, 0))(params, f_sig)
+    return jax.vmap(
+        jax.grad(waveform_cros_normed, holomorphic=True),
+        in_axes=(None, 0),
+    )(params, f_sig)

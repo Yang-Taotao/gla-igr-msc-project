@@ -1,13 +1,11 @@
 """
 Configuration setup script.
 """
-# %%
 # Library import
 import jax
 import jax.numpy as jnp
 import bilby
 
-# %%
 # Config setup
 # =========================================================================== #
 # Frequency - min, max, step
@@ -23,7 +21,6 @@ mc, eta = 28.0956, 0.2471
 param_test = jnp.array([mc, eta, 0.0, 0.0])
 # =========================================================================== #
 
-# %%
 # Frequency array builder
 
 
@@ -59,7 +56,6 @@ def freq_psd(data_samp: float, data_dura: float):
     return detector.power_spectral_density_array[1:]
 
 
-# %%
 # Theta tuple builder
 
 
@@ -83,7 +79,6 @@ def theta_ripple(
     return jax.vmap(theta_join)(matrix)
 
 
-# %%
 # Generate results
 # Freq - signal, reference
 f_sig, f_ref = freq_ripple(f_min, f_max, f_del)
