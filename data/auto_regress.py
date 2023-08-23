@@ -50,7 +50,12 @@ class Bivariate_von_Mises:
         self.k1, self.k2 = concentration
         self.k3 = correlation
 
-    def log_prob(self, x):
+    def log_prob(self, x):#target dist, need to switch to working dist of fim density
+        '''
+        Take in 2d param
+        Feed 2d param to external func for some density result (dtype: float ish)
+        The float is the return of log_prob()
+        '''
         phi, psi = x.T
         return self.k1*jnp.cos(phi-self.mu)+self.k2*jnp.cos(psi-self.nu)-self.k3*jnp.cos(phi-self.mu-psi+self.nu)
     
@@ -97,6 +102,7 @@ def make_flow_model(
         return distrax.RationalQuadraticSpline(
         #    params, range_min=0.0, range_max=2*np.pi, boundary_slopes = 'circular'   #circular spline
             params, range_min=0.0, range_max=2*np.pi    #regular spline
+            # This defines the domain of the flow params
         )
 
     # Number of parameters for the rational-quadratic spline:
@@ -187,6 +193,7 @@ if __name__ == '__main__':
     correlation = 0.
     dist = Bivariate_von_Mises(loc, concentration, correlation)
 
+    #flow params
     n_params = 2
     flow_num_layers = 2
     hidden_size = 8
@@ -194,7 +201,7 @@ if __name__ == '__main__':
     num_bins = 4
 
     # perform variational inference
-    epochs = 10000
+    epochs = 1000 #reduce this for testing purpose, original val = 10000
     loss = dict(train=[], val=[])
     Nsamps = 1000
 
@@ -222,7 +229,7 @@ if __name__ == '__main__':
             if epoch%100 == 0:
                 print(f'Epoch {epoch}, loss {loss}')
                 x_gen, log_prob_gen = sample_and_log_prob.apply(params, next(prng_seq), 10*Nsamps)
-                samples = np.array((x_gen+np.pi)%(2*np.pi))
+                samples = np.array(x_gen)
                 #fig = corner.corner(samples)
                 flows.append(samples)
                 #pl.savefig(f'results/{run_name}/flow_{epoch}.png')
