@@ -13,6 +13,7 @@ from tqdm import tqdm
 from data import gw_rpl
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
+jax.config.update("jax_enable_x64", True)
 
 # %%
 # FIM - Parameter assembler

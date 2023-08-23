@@ -10,9 +10,10 @@ import jax.numpy as jnp
 # Package - ripple
 from ripple.waveforms import IMRPhenomXAS
 # Custom config import
-from data.gw_cfg import f_sig, f_ref, theta_base, f_psd, f_diff
+from data.gw_cfg import f_sig, f_ref, param_base, f_psd, f_diff
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
+jax.config.update("jax_enable_x64", True)
 
 # %%
 # Ripple - Inner Product Handler
@@ -43,7 +44,7 @@ def waveform_plus_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     [Mc, eta, t_c, phi_c]
     '''
     # Set complete ripple_theta
-    theta = theta_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
+    theta = param_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
     # Generate plus polarized waveform
     h_plus, _ = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, f_ref)
     # Func return
@@ -74,7 +75,7 @@ def waveform_cros_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     [Mc, eta, t_c, phi_c]
     '''
     # Set complete ripple_theta
-    theta = theta_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
+    theta = param_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
     # Generate cross polarized waveform
     _, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, f_ref)
     # Func return
