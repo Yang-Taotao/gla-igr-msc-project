@@ -11,7 +11,7 @@ import os
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Custom packages
 from data import gw_fim, gw_plt, gw_rpl
-from data.gw_cfg import f_sig, f_psd, mcs, etas, test_params
+from data.gw_cfg import f_sig, f_psd, mcs, etas, param_test
 # Setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 cc.initialize_cache("./data/__jaxcache__")
@@ -20,14 +20,14 @@ cc.initialize_cache("./data/__jaxcache__")
 # First compilation
 # t~1min20s
 # Wavefor generation
-hp = gw_rpl.waveform_plus_restricted(test_params, f_sig)
-hc = gw_rpl.waveform_cros_restricted(test_params, f_sig)
+hp = gw_rpl.waveform_plus_restricted(param_test, f_sig)
+hc = gw_rpl.waveform_cros_restricted(param_test, f_sig)
 # Gradient calculation
-gp = gw_rpl.gradient_plus(test_params)
-gc = gw_rpl.gradient_cros(test_params)
+gp = gw_rpl.gradient_plus(param_test)
+gc = gw_rpl.gradient_cros(param_test)
 # FIM test statistics calculation
-detp = gw_fim.log10_sqrt_det_plus(test_params)
-detc = gw_fim.log10_sqrt_det_cros(test_params)
+detp = gw_fim.log10_sqrt_det_plus(param_test)
+detc = gw_fim.log10_sqrt_det_cros(param_test)
 # First compilation - results checker
 print(f"Test waveform hp.shape:{hp.shape} hc.shape:{hc.shape}")
 print(f"Test gradient gp.shape:{gp.shape} gc.shape:{gc.shape}")
