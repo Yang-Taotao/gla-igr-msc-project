@@ -5,7 +5,6 @@ Created on Thu August 23 2023
 """
 # Library import
 import os
-import io
 from typing import Any, Sequence, Tuple
 import haiku as hk
 from tqdm import trange
@@ -18,11 +17,10 @@ import distrax
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Package - plotters
 import matplotlib.pyplot as plt
-import scienceplots
 import corner
-from PIL import Image
+import scienceplots
 # Other imports
-from data import gw_fim
+from data import gw_fim, gw_plt
 
 # Setup options
 # XLA GPU resource setup
@@ -34,45 +32,6 @@ plt.style.use(['science', 'notebook', 'grid'])
 # Aliasing
 PRNGKey = jnp.ndarray
 OptState = Any
-
-# Flow results gif plotter
-
-
-def make_gif(data_flow):
-    """
-    GIF generator for flow results
-    """
-    # Frame repo init
-    frames = []
-    # Frame generation
-    # for i in range(len(data_flow)):
-    for _, flow in enumerate(data_flow):
-        # Plot epoch related flow results
-        corner.corner(flow)
-        # Create frame buffer
-        img_buf = io.BytesIO()
-        # Save frames to buffer
-        plt.savefig(img_buf, format='png')
-        # Re-init
-        plt.close()
-        # Add to frame repo
-        image = Image.open(img_buf)
-        frames.append(image)
-    # Get first frame
-    frame_one = frames[0]
-    # Save fig
-    frame_one.save(
-        #f'./results/{RUN_NAME}_animation.gif',
-        './results/flow_animation.gif',
-        format="GIF",
-        append_images=frames,
-        save_all=True,
-        duration=100,
-        loop=0,
-    )
-    # Terminate buffer
-    img_buf.close()
-
  
 # Dist - BVM distribution
 
@@ -148,8 +107,7 @@ class TemplateDensity:
         # Param build with shape (n, 4)
         param = jnp.column_stack((data_mc, data_eta, data_tc, data_phic))
         # Get results with shape (n, )
-        result = jax.vmap(gw_fim.log_sqrt_det_plus)(param)
-        print(type(result))
+        result = gw_fim.log_density_plus(param)
         # Func return
         return result
 
@@ -212,7 +170,6 @@ def make_flow_model(
         return distrax.RationalQuadraticSpline(
             # Regular spline
             # This defines the domain of the flow parameters
-            # params, range_min=0.0, range_max=2*np.pi
             params, range_min=range_min, range_max=range_max
         )
 
@@ -297,6 +254,9 @@ def loss_fn(params: hk.Params, prng_key: PRNGKey, data_n: int) -> jnp.ndarray:
     # Local calculation resources
     x_flow, log_q = sample_and_log_prob.apply(params, prng_key, data_n)
     log_p = dist.log_prob(x_flow)
+    # Sanity check
+    print("type(log_p)", type(log_p))
+    print("type(log_q)", type(log_q))
     # Get the KL divergence as loss
     data_loss = jnp.mean(log_q - log_p)
     # Func return
@@ -315,6 +275,7 @@ def update(
     grads = jax.grad(loss_fn)(params, prng_key, NUM_SAMPLES)
     updates, new_opt_state = optimiser.update(grads, opt_state)
     new_params = optax.apply_updates(params, updates)
+    print("Update completed.")
     # Func return
     return new_params, new_opt_state
 
@@ -343,12 +304,17 @@ if __name__ == '__main__':
 
     # Perform variational inference
     TOTAL_EPOCHS = 300 #reduce this for testing purpose, original val = 10000
-    NUM_SAMPLES = 10#1000
-    LEARNING_RATE = 0.001
+    NUM_SAMPLES = 100 #1000
+    LEARNING_RATE = 0.01 #0.001
 # =========================================================================== #
     # dist = BivariateVonMises(LOC, CONCENTRATION, CORRELATION)
     dist = TemplateDensity(PARAM_RIPPLE)
     optimiser = optax.adam(LEARNING_RATE)
+
+    test_param = jnp.ones((NUM_SAMPLES, 4))
+    print("test_param.shape", test_param.shape)
+    test_compile = gw_fim.log_density_plus(test_param)
+    print("test_compile.shape", test_compile.shape)
 
     prng_seq = hk.PRNGSequence(42)
     key = next(prng_seq)
@@ -407,4 +373,4 @@ if __name__ == '__main__':
     f.close()
 
     # Plot animation of the flows
-    make_gif(flows)
+    gw_plt.make_gif(flows)

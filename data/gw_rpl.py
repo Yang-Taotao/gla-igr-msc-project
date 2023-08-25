@@ -17,7 +17,6 @@ jax.config.update("jax_enable_x64", True)
 # Ripple - Inner Product Handler
 
 
-@jax.jit
 def inner_prod(vec_a: jnp.ndarray, vec_b: jnp.ndarray):
     """
     Noise weighted inner product between vectors a and b
@@ -32,7 +31,6 @@ def inner_prod(vec_a: jnp.ndarray, vec_b: jnp.ndarray):
 # Ripple - Get waveform_plus -> restricted and normalized
 
 
-@jax.jit
 def waveform_plus_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     '''
     Function to return restricted waveform_plus where params are:
@@ -46,7 +44,6 @@ def waveform_plus_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     return h_plus
 
 
-@jax.jit
 def waveform_plus_normed(params: jnp.ndarray, freq: jnp.ndarray):
     '''
     Produce waveform normalization for restricted waveoform_plus
@@ -62,7 +59,6 @@ def waveform_plus_normed(params: jnp.ndarray, freq: jnp.ndarray):
 # Ripple - Get waveform_cros -> restricted and normalized
 
 
-@jax.jit
 def waveform_cros_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     '''
     Function to return restricted waveform_cros where params are:
@@ -76,7 +72,6 @@ def waveform_cros_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     return h_cros
 
 
-@jax.jit
 def waveform_cros_normed(params: jnp.ndarray, freq: jnp.ndarray):
     '''
     Produce waveform normalization for restricted waveoform_cros
@@ -92,7 +87,6 @@ def waveform_cros_normed(params: jnp.ndarray, freq: jnp.ndarray):
 # Ripple - Gradient Calculator
 
 
-@jax.jit
 def gradient_plus(theta: jnp.ndarray):
     '''
     Map normalized waveform_plus gradients to signal frequency
@@ -106,7 +100,6 @@ def gradient_plus(theta: jnp.ndarray):
     )(params, f_sig)
 
 
-@jax.jit
 def gradient_cros(theta: jnp.ndarray):
     '''
     Map normalized waveform_cros gradients to signal frequency

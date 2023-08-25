@@ -34,44 +34,67 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
     return fim_param
 
 
-# FIM - Main ==> log.sqrt.det.FIM
+# FIM mapped
 
 
-@jax.jit
-def log_sqrt_det_plus(param: jnp.ndarray):
+# @jax.jit
+def log_density_plus(param: jnp.ndarray):
     """
-    Return the log based square root of the determinant of
-    Fisher matrix projected onto the mc, eta space
-    for hp waveform results
+    Return the vmap generated log density array for hp based param
     """
-    # Calculation 
-    try:
-        data_fim = projected_fim_plus(param)
-    except AssertionError:
-        data_fim = jnp.nan
-    # Func return - log density
-    return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
+    # Local resources
+    num_param = param.shape[0]
+    batch_size = int(num_param * 0.5)
+    num_batch = num_param // batch_size
+    # Init
+    density_list = []
+    with trange(param.shape[0], desc="Processing Params") as param_range:
+        # Batching
+        for i in trange(num_batch):
+            # Split batches
+            batch_fim_param = param[i * batch_size: (i + 1) * batch_size]
+            # Call jax.vmap
+            batch_density = jax.vmap(log_sqrt_det_plus)(batch_fim_param)
+            # Add to results
+            density_list.append(batch_density)
+            # Update progress bar
+            param_range.update(batch_fim_param.shape[0])
+    # Concatenate the results from smaller batches
+    density = jnp.concatenate(density_list)
+    return density
 
 
-@jax.jit
-def log_sqrt_det_cros(param: jnp.ndarray):
+# @jax.jit
+def log_density_cros(param: jnp.ndarray):
     """
-    Return the log based square root of the determinant of
-    Fisher matrix projected onto the mc, eta space
-    for hc waveform results
+    Return the vmap generated log density array for hc based param
     """
-    # Calculation 
-    try:
-        data_fim = projected_fim_cros(param)
-    except AssertionError:
-        data_fim = jnp.nan
-    # Func return - log density
-    return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
+    # Local resources
+    num_param = param.shape[0]
+    batch_size = int(num_param * 0.5)
+    num_batch = num_param // batch_size
+    # Init
+    density_list = []
+    with trange(num_param, desc="Processing Params") as param_range:
+        # Batching
+        for i in trange(num_batch):
+            # Split batches
+            batch_fim_param = param[i * batch_size: (i + 1) * batch_size]
+            # Call jax.vmap
+            batch_density = jax.vmap(log_sqrt_det_cros)(batch_fim_param)
+            # Add to results
+            density_list.append(batch_density)
+            # Update progress bar
+            param_range.update(batch_fim_param.shape[0])
+    # Concatenate the results from smaller batches
+    density = jnp.concatenate(density_list)
+    return density
 
 
 # FIM - Main ==> Batching
 
 
+@jax.jit
 def density_batch_calc(
     data: jnp.ndarray,
     mcs: jnp.ndarray,
@@ -92,17 +115,53 @@ def density_batch_calc(
     num_batch = data.shape[0] // batch_size
     density_list = []
     # Batching
-    for i in trange(num_batch):
-        # Split batches
-        batch_fim_param = data[i * batch_size: (i + 1) * batch_size]
-        # Call jax.vmap
-        batch_density = jax.vmap(wf_func)(batch_fim_param)
-        # Add to results
-        density_list.append(batch_density)
+    with trange(data.shape[0], desc="Processing Params") as param_range:
+        for i in trange(num_batch):
+            # Split batches
+            batch_fim_param = data[i * batch_size: (i + 1) * batch_size]
+            # Call jax.vmap
+            batch_density = jax.vmap(wf_func)(batch_fim_param)
+            # Add to results
+            density_list.append(batch_density)
+            # Update progress bar
+            param_range.update(batch_fim_param.shape[0])
     # Concatenate the results from smaller batches
     density = jnp.concatenate(density_list).reshape([len(mcs), len(etas)])
     # Func return
     return density
+
+
+# FIM - Main ==> log.sqrt.det.FIM
+
+
+def log_sqrt_det_plus(param: jnp.ndarray):
+    """
+    Return the log based square root of the determinant of
+    Fisher matrix projected onto the mc, eta space
+    for hp waveform results
+    """
+    # Calculation 
+    try:
+        data_fim = projected_fim_plus(param)
+    except AssertionError:
+        data_fim = jnp.nan
+    # Func return - log density
+    return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
+
+
+def log_sqrt_det_cros(param: jnp.ndarray):
+    """
+    Return the log based square root of the determinant of
+    Fisher matrix projected onto the mc, eta space
+    for hc waveform results
+    """
+    # Calculation 
+    try:
+        data_fim = projected_fim_cros(param)
+    except AssertionError:
+        data_fim = jnp.nan
+    # Func return - log density
+    return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
 # FIM projection sub func

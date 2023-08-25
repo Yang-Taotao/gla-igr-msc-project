@@ -10,28 +10,28 @@ import os
 # Use jax and persistent cache
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Custom packages
-from data import gw_fim, gw_plt, gw_rpl
-from data.gw_cfg import f_sig, f_psd, mcs, etas, param_test
+from data import gw_fim, gw_plt #, gw_rpl
+from data.gw_cfg import mcs, etas #, param_test, f_sig, f_psd
 # Setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 cc.initialize_cache("./data/__jaxcache__")
 
 # %%
-# First compilation
+# First compilation test for sub modules
 # t~1min20s
 # Wavefor generation
-hp = gw_rpl.waveform_plus_restricted(param_test, f_sig)
-hc = gw_rpl.waveform_cros_restricted(param_test, f_sig)
+# hp = gw_rpl.waveform_plus_restricted(param_test, f_sig)
+# hc = gw_rpl.waveform_cros_restricted(param_test, f_sig)
 # Gradient calculation
-gp = gw_rpl.gradient_plus(param_test)
-gc = gw_rpl.gradient_cros(param_test)
+# gp = gw_rpl.gradient_plus(param_test)
+# gc = gw_rpl.gradient_cros(param_test)
 # FIM test statistics calculation
-detp = gw_fim.log_sqrt_det_plus(param_test)
-detc = gw_fim.log_sqrt_det_cros(param_test)
+# detp = gw_fim.log_sqrt_det_plus(param_test)
+# detc = gw_fim.log_sqrt_det_cros(param_test)
 # First compilation - results checker
-print(f"Test waveform hp.shape:{hp.shape} hc.shape:{hc.shape}")
-print(f"Test gradient gp.shape:{gp.shape} gc.shape:{gc.shape}")
-print(f"Test log10 density detp:{detp:.4g} detc:{detp:.4g}")
+# print(f"Test waveform hp.shape:{hp.shape} hc.shape:{hc.shape}")
+# print(f"Test gradient gp.shape:{gp.shape} gc.shape:{gc.shape}")
+# print(f"Test log10 density detp:{detp:.4g} detc:{detp:.4g}")
 
 # %%
 # FIM density calc params
@@ -40,22 +40,28 @@ fim_param = gw_fim.fim_param_build(mcs, etas)
 print(f"fim_param.shape:{fim_param.shape}")
 
 # %%
+# New compilation
+density_p = gw_fim.log_density_plus(fim_param)
+density_c = gw_fim.log_density_cros(fim_param)
+
+# %%
 # Density matrix batching
+# Use if OOM occurs
 # t~43.1s for (100, 100) shape
-density_p = gw_fim.density_batch_calc(
-    fim_param, mcs, etas, batch_size=100, waveform="hp")
-density_c = gw_fim.density_batch_calc(
-    fim_param, mcs, etas, batch_size=100, waveform="hc")
-print(f"Metric density_p.shape:{density_p.shape}")
-print(f"Metric density_c.shape:{density_c.shape}")
+# density_p = gw_fim.density_batch_calc(
+#     fim_param, mcs, etas, batch_size=100, waveform="hp")
+# density_c = gw_fim.density_batch_calc(
+#     fim_param, mcs, etas, batch_size=100, waveform="hc")
+# print(f"Metric density_p.shape:{density_p.shape}")
+# print(f"Metric density_c.shape:{density_c.shape}")
 
 # %%
 # Plot Generation
-gw_plt.ripple_waveform(f_sig, hp, waveform="hp")
-gw_plt.ripple_waveform(f_sig, hc, waveform="hc")
-gw_plt.ripple_gradient(f_sig, hp, hc, param="mc")
-gw_plt.ripple_gradient(f_sig, hp, hc, param="eta")
-gw_plt.bilby_noise_psd(f_sig, f_psd)
+# gw_plt.ripple_waveform(f_sig, hp, waveform="hp")
+# gw_plt.ripple_waveform(f_sig, hc, waveform="hc")
+# gw_plt.ripple_gradient(f_sig, hp, hc, param="mc")
+# gw_plt.ripple_gradient(f_sig, hp, hc, param="eta")
+# gw_plt.bilby_noise_psd(f_sig, f_psd)
 gw_plt.log_fim_contour(mcs, etas, density_p, waveform="hp")
 gw_plt.log_fim_contour(mcs, etas, density_c, waveform="hc")
 

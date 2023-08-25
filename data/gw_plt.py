@@ -2,8 +2,11 @@
 Plotter functions repository.
 """
 # Library import
+import io
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+import corner
+from PIL import Image
 import scienceplots
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
@@ -167,3 +170,42 @@ def bilby_noise_psd(data_x: jnp.ndarray, data_y: jnp.ndarray):
     fig.tight_layout()
     # Plot admin
     fig.savefig(save_path)
+
+
+# Flow results gif plotter
+
+
+def make_gif(data_flow):
+    """
+    GIF generator for flow results
+    """
+    # Frame repo init
+    frames = []
+    # Frame generation
+    # for i in range(len(data_flow)):
+    for _, flow in enumerate(data_flow):
+        # Plot epoch related flow results
+        corner.corner(flow)
+        # Create frame buffer
+        img_buf = io.BytesIO()
+        # Save frames to buffer
+        plt.savefig(img_buf, format='png')
+        # Re-init
+        plt.close()
+        # Add to frame repo
+        image = Image.open(img_buf)
+        frames.append(image)
+    # Get first frame
+    frame_one = frames[0]
+    # Save fig
+    frame_one.save(
+        #f'./results/{RUN_NAME}_animation.gif',
+        './results/flow_animation.gif',
+        format="GIF",
+        append_images=frames,
+        save_all=True,
+        duration=100,
+        loop=0,
+    )
+    # Terminate buffer
+    img_buf.close()
