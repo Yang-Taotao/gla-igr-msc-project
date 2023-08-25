@@ -15,16 +15,20 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 import distrax
+from jax.experimental.compilation_cache import compilation_cache as cc
 # Package - plotters
 import matplotlib.pyplot as plt
 import scienceplots
 import corner
 from PIL import Image
+# Other imports
+from data import gw_fim
 
 # Setup options
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
-jax.config.update("jax_enable_x64", True)
+cc.initialize_cache("./data/__jaxcache__")
+# jax.config.update("jax_enable_x64", True)
 # Plotter style customization
 plt.style.use(['science', 'notebook', 'grid'])
 # Aliasing
@@ -58,8 +62,8 @@ def make_gif(data_flow):
     frame_one = frames[0]
     # Save fig
     frame_one.save(
-        #f'../results/{RUN_NAME}_animation.gif',
-        '../results/flow_animation.gif',
+        #f'./results/{RUN_NAME}_animation.gif',
+        './results/flow_animation.gif',
         format="GIF",
         append_images=frames,
         save_all=True,
@@ -69,8 +73,8 @@ def make_gif(data_flow):
     # Terminate buffer
     img_buf.close()
 
-
-# Flow Class - LogL
+ 
+# Dist - BVM distribution
 
 
 class BivariateVonMises:
@@ -94,6 +98,8 @@ class BivariateVonMises:
         '''
         # 2-D parameters
         phi, psi = data_x.T
+        phi = 2*jnp.pi*phi
+        psi = 2*jnp.pi*psi
         # Get result
         result = (
             self.data_k1*jnp.cos(phi - self.data_mu)
@@ -110,7 +116,51 @@ class BivariateVonMises:
         """
         # Func return - examine log_prob(input), the input may be inverted
         return jnp.exp(self.log_prob(data_x))
+    
 
+# Dist - GW Metric Density
+
+
+class TemplateDensity:
+    """
+    GW template density class for hp based results
+    """
+    def __init__(self, param_ripple):
+        self.data_tc, self.data_phic = param_ripple
+
+
+    def log_prob(self, data_x):
+        '''
+        Get the log template density
+
+        Take in 2d param
+        Feed 2d param to external func for some density result (dtype: float ish)
+        The float is the return of log_prob()
+        '''
+        # Local assignment, 2-d param
+        # data_x.shape (n, 2)
+        data_mc, data_eta = data_x.T
+        data_mc = data_mc*20+1.0 # 1.0 - 21.0
+        data_eta = data_eta*0.2+0.05 # 0.05 - 0.25
+        # Get results
+        data_tc = self.data_tc*jnp.ones_like(data_mc)
+        data_phic = self.data_phic*jnp.ones_like(data_mc)
+        # Param build with shape (n, 4)
+        param = jnp.column_stack((data_mc, data_eta, data_tc, data_phic))
+        # Get results with shape (n, )
+        result = jax.vmap(gw_fim.log_sqrt_det_plus)(param)
+        print(type(result))
+        # Func return
+        return result
+
+
+    def prob(self, data_x):
+        """
+        Get probability distribution
+        """
+        # Func return - examine log_prob(input), the input may be inverted
+        return jnp.exp(self.log_prob(data_x))
+    
 
 # Flow model
 
@@ -122,7 +172,7 @@ def make_conditioner(
     ) -> hk.Sequential:
     """
     Creates an ???
-    Conditiiner is the NN (parameters of the spline).
+    Conditiiner is the Neural Network (parameters of the spline).
     """
     return hk.Sequential([
         hk.Flatten(preserve_dims=-len(event_shape)),
@@ -151,8 +201,7 @@ def make_flow_model(
     mask = np.reshape(mask, event_shape)
     mask = mask.astype(bool)
     # Param range definer
-    range_min = 0.0
-    range_max = 2*np.pi
+    range_min, range_max = 0.0, 1.0
 
 
     # Bijector
@@ -163,7 +212,8 @@ def make_flow_model(
         return distrax.RationalQuadraticSpline(
             # Regular spline
             # This defines the domain of the flow parameters
-            params, range_min=0.0, range_max=2*np.pi
+            # params, range_min=0.0, range_max=2*np.pi
+            params, range_min=range_min, range_max=range_max
         )
 
 
@@ -281,6 +331,8 @@ if __name__ == '__main__':
     LOC = [0.0, 0.0]
     CONCENTRATION = [4.0, 4.0]
     CORRELATION = 0.0
+    # Target density params tc, phic
+    PARAM_RIPPLE = [0.0, 0.0]
 
     # Flow parameters
     NUM_PARAMS = 2
@@ -291,10 +343,11 @@ if __name__ == '__main__':
 
     # Perform variational inference
     TOTAL_EPOCHS = 300 #reduce this for testing purpose, original val = 10000
-    NUM_SAMPLES = 1000
+    NUM_SAMPLES = 10#1000
     LEARNING_RATE = 0.001
 # =========================================================================== #
-    dist = BivariateVonMises(LOC, CONCENTRATION, CORRELATION)
+    # dist = BivariateVonMises(LOC, CONCENTRATION, CORRELATION)
+    dist = TemplateDensity(PARAM_RIPPLE)
     optimiser = optax.adam(LEARNING_RATE)
 
     prng_seq = hk.PRNGSequence(42)
@@ -309,7 +362,7 @@ if __name__ == '__main__':
     with trange(TOTAL_EPOCHS) as tepochs:
         for epoch in tepochs:
             data_prng_key = next(prng_seq)
-            loss = loss_fn(data_param,  data_prng_key, NUM_SAMPLES)
+            loss = loss_fn(data_param, data_prng_key, NUM_SAMPLES)
             ldict['loss'] = f'{loss:.2f}'
             losses.append(loss)
             tepochs.set_postfix(ldict, refresh=True)
@@ -335,22 +388,22 @@ if __name__ == '__main__':
         100*NUM_SAMPLES,
     )
     fig = corner.corner(np.array(x_gen))
-    # plt.savefig(f'../results/{RUN_NAME}_posterior.png')
-    plt.savefig('../results/flow_posterior.png')
+    # plt.savefig(f'./results/{RUN_NAME}_posterior.png')
+    plt.savefig('./results/flow_posterior.png')
     plt.close()
 
     # Save plot of the loss
     plt.plot(losses)
     plt.xlabel("Iteration")
     plt.ylabel("Loss")
-    # plt.savefig(f'../results/{RUN_NAME}_loss.png')
-    plt.savefig('../results/flow_loss.png')
+    # plt.savefig(f'./results/{RUN_NAME}_loss.png')
+    plt.savefig('./results/flow_loss.png')
     plt.close()
 
     # Save loss array
-    # f = open(f'../results/{RUN_NAME}_loss.npy', 'wb')
-    f = open('../results/flow_loss.npy', 'wb')
-    np.save(f,np.array(losses))
+    # f = open(f'./results/{RUN_NAME}_loss.npy', 'wb')
+    f = open('./results/flow_loss.npy', 'wb')
+    np.save(f, np.array(losses))
     f.close()
 
     # Plot animation of the flows
