@@ -7,7 +7,7 @@ import os
 import jax
 import jax.numpy as jnp
 # Other imports
-from tqdm import tqdm
+from tqdm import trange
 # Custom config import
 from data import gw_rpl
 # XLA GPU resource setup
@@ -38,30 +38,34 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
 
 
 @jax.jit
-def log_sqrt_det_plus(mceta: jnp.ndarray):
+def log_sqrt_det_plus(param: jnp.ndarray):
     """
     Return the log based square root of the determinant of
     Fisher matrix projected onto the mc, eta space
     for hp waveform results
     """
+    # Calculation 
     try:
-        data_fim = projected_fim_plus(mceta)
+        data_fim = projected_fim_plus(param)
     except AssertionError:
         data_fim = jnp.nan
+    # Func return - log density
     return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
 @jax.jit
-def log_sqrt_det_cros(mceta: jnp.ndarray):
+def log_sqrt_det_cros(param: jnp.ndarray):
     """
     Return the log based square root of the determinant of
     Fisher matrix projected onto the mc, eta space
     for hc waveform results
     """
+    # Calculation 
     try:
-        data_fim = projected_fim_cros(mceta)
+        data_fim = projected_fim_cros(param)
     except AssertionError:
         data_fim = jnp.nan
+    # Func return - log density
     return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
 
@@ -88,7 +92,7 @@ def density_batch_calc(
     num_batch = data.shape[0] // batch_size
     density_list = []
     # Batching
-    for i in tqdm(range(num_batch)):
+    for i in trange(num_batch):
         # Split batches
         batch_fim_param = data[i * batch_size: (i + 1) * batch_size]
         # Call jax.vmap
@@ -132,6 +136,7 @@ def fim_metric(gamma: jnp.ndarray, nd_val: int):
     return metric
 
 
+# %%
 # FIM - Projected and simple FIM
 
 
