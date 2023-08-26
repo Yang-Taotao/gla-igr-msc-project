@@ -35,14 +35,14 @@ cc.initialize_cache("./data/__jaxcache__")
 
 # %%
 # FIM density calc params
-# Cached shape - (100, 100, 1, 1)
+# Cached shape - (10000, 4)
 fim_param = gw_fim.fim_param_build(mcs, etas)
 print(f"fim_param.shape:{fim_param.shape}")
 
 # %%
 # New compilation
-density_p = gw_fim.log_density_plus(fim_param)
-density_c = gw_fim.log_density_cros(fim_param)
+density_p = gw_fim.log_density_plus(fim_param).reshape([len(mcs), len(etas)])
+density_c = gw_fim.log_density_cros(fim_param).reshape([len(mcs), len(etas)])
 
 # %%
 # Density matrix batching
@@ -64,5 +64,9 @@ density_c = gw_fim.log_density_cros(fim_param)
 # gw_plt.bilby_noise_psd(f_sig, f_psd)
 gw_plt.log_fim_contour(mcs, etas, density_p, waveform="hp")
 gw_plt.log_fim_contour(mcs, etas, density_c, waveform="hc")
+gw_plt.log_fim_param(mcs, density_p, waveform= "hp",param= "mc")
+gw_plt.log_fim_param(etas, density_p, waveform= "hp",param= "eta")
+gw_plt.log_fim_param(mcs, density_c, waveform= "hc",param= "mc")
+gw_plt.log_fim_param(etas, density_c, waveform= "hc",param= "eta")
 
 # %%

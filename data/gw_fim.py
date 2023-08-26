@@ -37,6 +37,16 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
 # FIM mapped
 
 
+@jax.jit
+def map_density_plus(param: jnp.ndarray):
+    return jax.vmap(log_sqrt_det_plus)(param)
+
+
+@jax.jit
+def map_density_cros(param: jnp.ndarray):
+    return jax.vmap(log_sqrt_det_cros)(param)
+
+
 # @jax.jit
 def log_density_plus(param: jnp.ndarray):
     """
@@ -44,21 +54,18 @@ def log_density_plus(param: jnp.ndarray):
     """
     # Local resources
     num_param = param.shape[0]
-    batch_size = int(num_param * 0.5)
+    batch_size = int(num_param * 0.1)
     num_batch = num_param // batch_size
     # Init
     density_list = []
-    with trange(param.shape[0], desc="Processing Params") as param_range:
-        # Batching
-        for i in trange(num_batch):
-            # Split batches
-            batch_fim_param = param[i * batch_size: (i + 1) * batch_size]
-            # Call jax.vmap
-            batch_density = jax.vmap(log_sqrt_det_plus)(batch_fim_param)
-            # Add to results
-            density_list.append(batch_density)
-            # Update progress bar
-            param_range.update(batch_fim_param.shape[0])
+    # Batching
+    for i in range(num_batch):
+        # Split batches
+        batch_fim_param = param[i * batch_size: (i + 1) * batch_size]
+        # Call jax.vmap
+        batch_density = map_density_plus(batch_fim_param)
+        # Add to results
+        density_list.append(batch_density)
     # Concatenate the results from smaller batches
     density = jnp.concatenate(density_list)
     return density
@@ -71,21 +78,18 @@ def log_density_cros(param: jnp.ndarray):
     """
     # Local resources
     num_param = param.shape[0]
-    batch_size = int(num_param * 0.5)
+    batch_size = int(num_param * 0.1)
     num_batch = num_param // batch_size
     # Init
     density_list = []
-    with trange(num_param, desc="Processing Params") as param_range:
-        # Batching
-        for i in trange(num_batch):
-            # Split batches
-            batch_fim_param = param[i * batch_size: (i + 1) * batch_size]
-            # Call jax.vmap
-            batch_density = jax.vmap(log_sqrt_det_cros)(batch_fim_param)
-            # Add to results
-            density_list.append(batch_density)
-            # Update progress bar
-            param_range.update(batch_fim_param.shape[0])
+    # Batching
+    for i in range(num_batch):
+        # Split batches
+        batch_fim_param = param[i * batch_size: (i + 1) * batch_size]
+        # Call jax.vmap
+        batch_density = map_density_cros(batch_fim_param)
+        # Add to results
+        density_list.append(batch_density)
     # Concatenate the results from smaller batches
     density = jnp.concatenate(density_list)
     return density

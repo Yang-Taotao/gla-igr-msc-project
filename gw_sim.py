@@ -254,16 +254,13 @@ def loss_fn(params: hk.Params, prng_key: PRNGKey, data_n: int) -> jnp.ndarray:
     # Local calculation resources
     x_flow, log_q = sample_and_log_prob.apply(params, prng_key, data_n)
     log_p = dist.log_prob(x_flow)
-    # Sanity check
-    print("type(log_p)", type(log_p))
-    print("type(log_q)", type(log_q))
     # Get the KL divergence as loss
     data_loss = jnp.mean(log_q - log_p)
     # Func return
     return data_loss
 
 
-# @jax.jit
+@jax.jit
 def update(
     params: hk.Params,
     prng_key: PRNGKey,
@@ -273,9 +270,11 @@ def update(
     Single SGD update step
     """
     grads = jax.grad(loss_fn)(params, prng_key, NUM_SAMPLES)
+    print("update() grad calculated")
     updates, new_opt_state = optimiser.update(grads, opt_state)
+    print("update() optimiser updated")
     new_params = optax.apply_updates(params, updates)
-    print("Update completed.")
+    print("update() new param updated")
     # Func return
     return new_params, new_opt_state
 
@@ -303,18 +302,24 @@ if __name__ == '__main__':
     NUM_BINS = 4
 
     # Perform variational inference
-    TOTAL_EPOCHS = 300 #reduce this for testing purpose, original val = 10000
-    NUM_SAMPLES = 100 #1000
-    LEARNING_RATE = 0.01 #0.001
+    TOTAL_EPOCHS = 10000 #reduce this for testing purpose, original val = 10000
+    NUM_SAMPLES = 1000 #1000
+    LEARNING_RATE = 0.001 #0.001
+    print("Main: Local param assigned")
 # =========================================================================== #
     # dist = BivariateVonMises(LOC, CONCENTRATION, CORRELATION)
     dist = TemplateDensity(PARAM_RIPPLE)
     optimiser = optax.adam(LEARNING_RATE)
-
-    test_param = jnp.ones((NUM_SAMPLES, 4))
-    print("test_param.shape", test_param.shape)
-    test_compile = gw_fim.log_density_plus(test_param)
-    print("test_compile.shape", test_compile.shape)
+    
+    # print()
+    # print("Test Compilation:")
+    # print("=" * 30)
+    # test_param = jnp.ones((NUM_SAMPLES, 4))
+    # print("test_param.shape", test_param.shape)
+    # test_compile = gw_fim.log_density_plus(test_param)
+    # print("test_compile.shape", test_compile.shape)
+    # print("=" * 30)
+    # print()
 
     prng_seq = hk.PRNGSequence(42)
     key = next(prng_seq)
@@ -325,14 +330,21 @@ if __name__ == '__main__':
     ldict = {"loss": 0}
     losses = []
     flows = []
+
+    print()
+    print("Training: Initiated")
+    print("=" * 30)
     with trange(TOTAL_EPOCHS) as tepochs:
         for epoch in tepochs:
             data_prng_key = next(prng_seq)
             loss = loss_fn(data_param, data_prng_key, NUM_SAMPLES)
+            print(f"Training {epoch}: loss_fn() complete")
             ldict['loss'] = f'{loss:.2f}'
             losses.append(loss)
+            print(f"Training {epoch}: losses append complete")
             tepochs.set_postfix(ldict, refresh=True)
             data_param, data_opt_state = update(data_param, data_prng_key, data_opt_state)
+            print(f"Training {epoch}: update() complete")
             # Results
             if epoch%100 == 0:
                 x_gen, log_prob_gen = sample_and_log_prob.apply(
@@ -345,7 +357,9 @@ if __name__ == '__main__':
                 # Print results
                 print(f'At epoch: {epoch}, with loss: {loss}')
     # Print if complete
-    print("Accomplished.")
+    print("Training accomplished.")
+    print("=" * 30)
+    print()
 
     # Save plot of the final posterior
     x_gen, log_prob_gen = sample_and_log_prob.apply(

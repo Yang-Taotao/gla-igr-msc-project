@@ -21,16 +21,16 @@ def log_fim_contour(
     waveform: str = 'hp',
 ):
     """
-    Generate contourf plots for log10-based density wrt mc, eta
+    Generate contourf plots for log density wrt mc, eta
     Defaulted at waveform hp results
     """
     # Local plotter resources
     xlabel, ylabel, cblabel = (
         r'Chirp Mass $\mathcal{M} [M_\odot$]',
         r'Symmetric Mass Ratio $\eta$',
-        r'$\log_{10}$ Template Bank Density',
+        r'$\log$ Template Bank Density',
     )
-    save_path = './figures/log_fim_contour_' + waveform + '.png'
+    save_path = f'./figures/log_fim_contour_{waveform}.png'
     # Plot init
     fig, ax = plt.subplots(figsize=(8, 6))
     # Plotter
@@ -49,6 +49,42 @@ def log_fim_contour(
     # Plot admin
     fig.savefig(save_path)
 
+
+def log_fim_param(
+    data_x: jnp.ndarray,
+    data_y: jnp.ndarray,
+    waveform: str = "hp",
+    param: str = "mc",
+):
+    """
+    1-D param plot for log density wrt param entry
+    """
+    # Local plotter resources
+    xlabel_dict = {
+        'mc': r'Chirp Mass $\mathcal{M} [M_\odot$]',
+        'eta': r'Symmetric Mass Ratio $\eta$',
+    }
+    ylabel = r'$\log$ Template Bank Density'
+    save_path = f'./figures/log_fim_param_{param}_{waveform}.png'
+    # Plot init
+    fig, ax = plt.subplots(figsize=(8, 6))
+    # Plotter
+    plot = [
+        ax.scatter(
+            data_x,
+            data_y[:, i],
+            alpha=0.8,
+            s=1,
+            cmap='gist_heat',
+            c=data_y[:, i],
+        )
+        for i in range(int(data_y.shape[0]))
+    ]
+    # Plot customization
+    ax.set(xlabel=xlabel_dict[param], ylabel=ylabel)
+    fig.tight_layout()
+    # Plot admin
+    fig.savefig(save_path)
 
 # Waveform and gradient
 
@@ -77,7 +113,7 @@ def ripple_waveform(
             r'Freqency $f$ [Hz]',
             r'Signal Strain $h_\times$',
         )
-    save_path = './figures/ripple_' + waveform + '.png'
+    save_path = f'./figures/ripple_{waveform}.png'
     # Plot init
     fig, ax = plt.subplots(figsize=(8, 6))
     # Plotter
@@ -126,7 +162,7 @@ def ripple_gradient(
         f"{label_dict['freq']}",
         f"{label_dict['grad']}{label_dict[param]}",
     )
-    save_path = './figures/ripple' + param + '.png'
+    save_path = f'./figures/ripple_{param}.png'
     # Plot init
     fig, ax = plt.subplots(figsize=(8, 6))
     # Plotter
