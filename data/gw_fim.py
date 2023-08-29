@@ -21,17 +21,32 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
     """
     Build 4-D FIM_PARAM grid with mc and eta entries:
     [mc, eta, tc, phic]
+    With input array shape (n, ) and (n, )
+    Yield param array shape (n**2, 4)
     """
     # Set (1, ) shape zero value array
-    zeros = jnp.zeros(1, dtype=jnp.float32)
+    zeros = jnp.zeros(1)
     # Param array - mc, eta, tc, phic
     param_arr = [mcs, etas, zeros, zeros]
     # Build 4-d mesh with matrix indexing
     nd_param = jnp.meshgrid(*param_arr, indexing='ij')
     # Stack and reshape into (n, 4) shape fim_param array
     fim_param = jnp.stack(nd_param, axis=-1).reshape(-1, len(param_arr))
-    # Func return
+    # Func return - (n**2, 4) param array
     return fim_param
+
+
+def fim_param_stack(mcs: jnp.ndarray, etas: jnp.ndarray):
+    """
+    Build FIM_PARAM with column_stack method to get
+    [mc, eta, tc, phic]
+    With input array shape (n, ) and (n, )
+    Yield param array shape (n, 4)
+    """
+    # Build tc, phic zeros entry array
+    zeros = jnp.zeros_like(mcs)
+    # Func return - stacked (n, 4) param array
+    return jnp.column_stack((mcs, etas, zeros, zeros))
 
 
 # FIM mapped
@@ -39,11 +54,19 @@ def fim_param_build(mcs: jnp.ndarray, etas: jnp.ndarray):
 
 @jax.jit
 def map_density_plus(param: jnp.ndarray):
+    """
+    Return the vectorized template density function for hp
+    Param follows shape (n, 4)
+    """
     return jax.vmap(log_sqrt_det_plus)(param)
 
 
 @jax.jit
 def map_density_cros(param: jnp.ndarray):
+    """
+    Return the vectorized template density function for hc
+    Param follows shape (n, 4)
+    """
     return jax.vmap(log_sqrt_det_cros)(param)
 
 
@@ -109,6 +132,7 @@ def density_batch_calc(
     """
     Calculate metric density values with default batching size 100
     Default at waveform hp results
+    Not actively used at the moment
     """
     # Select waveform
     if waveform == 'hp':
@@ -144,11 +168,11 @@ def log_sqrt_det_plus(param: jnp.ndarray):
     Fisher matrix projected onto the mc, eta space
     for hp waveform results
     """
-    # Calculation 
-    try:
-        data_fim = projected_fim_plus(param)
-    except AssertionError:
-        data_fim = jnp.nan
+    # Calculation
+    #try:
+    data_fim = projected_fim_plus(param)
+    #except AssertionError:
+    #    data_fim = jnp.nan
     # Func return - log density
     return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
@@ -159,11 +183,11 @@ def log_sqrt_det_cros(param: jnp.ndarray):
     Fisher matrix projected onto the mc, eta space
     for hc waveform results
     """
-    # Calculation 
-    try:
-        data_fim = projected_fim_cros(param)
-    except AssertionError:
-        data_fim = jnp.nan
+    # Calculation
+    #try:
+    data_fim = projected_fim_cros(param)
+    #except AssertionError:
+    #    data_fim = jnp.nan
     # Func return - log density
     return jnp.log(jnp.sqrt(jnp.linalg.det(data_fim)))
 
@@ -171,32 +195,32 @@ def log_sqrt_det_cros(param: jnp.ndarray):
 # FIM projection sub func
 
 
-def fim_gamma(full_fim: jnp.ndarray, nd_val: int):
+def fim_phic(full_fim: jnp.ndarray, nd_val: int):
     """
     Calculate the conditioned matrix projected onto coalecense phase
     """
     # Equation 16 from Dent & Veitch
-    gamma = jnp.array([
+    fim_result = jnp.array([
         full_fim[i, j] - full_fim[i, -1] * full_fim[-1, j] / full_fim[-1, -1]
         for i in range(nd_val-1)
         for j in range(nd_val-1)
     ]).reshape([nd_val-1, nd_val-1])
     # Func return
-    return gamma
+    return fim_result
 
 
-def fim_metric(gamma: jnp.ndarray, nd_val: int):
+def fim_tc(gamma: jnp.ndarray, nd_val: int):
     """
     Project the conditional matrix back onto coalecense time
     """
     # Equation 18 Dent & Veitch
-    metric = jnp.array([
+    fim_result = jnp.array([
         gamma[i, j] - gamma[i, -1] * gamma[-1, j] / gamma[-1, -1]
         for i in range(nd_val-2)
         for j in range(nd_val-2)
     ]).reshape([nd_val-2, nd_val-2])
     # Func return
-    return metric
+    return fim_result
 
 
 # %%
@@ -212,9 +236,9 @@ def projected_fim_plus(params: jnp.ndarray):
     full_fim = fim_plus(params)
     nd_val = params.shape[-1]
     # Calculate the conditioned matrix for phase
-    gamma = fim_gamma(full_fim, nd_val)
+    gamma = fim_phic(full_fim, nd_val)
     # Calculate the conditioned matrix for time
-    metric = fim_metric(gamma, nd_val)
+    metric = fim_tc(gamma, nd_val)
     # Func return
     return metric
 
@@ -228,34 +252,14 @@ def projected_fim_cros(params: jnp.ndarray):
     full_fim = fim_cros(params)
     nd_val = params.shape[-1]
     # Calculate the conditioned matrix for phase
-    gamma = fim_gamma(full_fim, nd_val)
+    gamma = fim_phic(full_fim, nd_val)
     # Calculate the conditioned matrix for time
-    metric = fim_metric(gamma, nd_val)
+    metric = fim_tc(gamma, nd_val)
     # Func return
     return metric
 
 
 # FIM packers
-
-
-def fim_base(grads: jnp.ndarray, nd_val: int):
-    """
-    Basic FIM entry packer
-    """
-    # Get FIM entries from inner products calculations
-    entries = {
-        (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
-        for j in range(nd_val)
-        for i in range(j+1)
-    }
-    # Fill the matrix from the precalculated entries
-    fim_result = jnp.array([
-        entries[tuple(sorted([i, j]))]
-        for j in range(nd_val)
-        for i in range(nd_val)
-    ]).reshape([nd_val, nd_val])
-    # Func return
-    return fim_result
 
 
 def fim_plus(params: jnp.ndarray):
@@ -292,5 +296,25 @@ def fim_cros(params: jnp.ndarray):
     nd_val = grads.shape[-1]
     # Get FIM result
     fim_result = fim_base(grads, nd_val)
+    # Func return
+    return fim_result
+
+
+def fim_base(grads: jnp.ndarray, nd_val: int):
+    """
+    Basic FIM entry packer
+    """
+    # Get FIM entries from inner products calculations
+    entries = {
+        (i, j): gw_rpl.inner_prod(grads[:, i], grads[:, j])
+        for j in range(nd_val)
+        for i in range(j+1)
+    }
+    # Fill the matrix from the precalculated entries
+    fim_result = jnp.array([
+        entries[tuple(sorted([i, j]))]
+        for j in range(nd_val)
+        for i in range(nd_val)
+    ]).reshape([nd_val, nd_val])
     # Func return
     return fim_result

@@ -30,7 +30,8 @@ def log_fim_contour(
         r'Symmetric Mass Ratio $\eta$',
         r'$\log$ Template Bank Density',
     )
-    save_path = f'./figures/log_fim_contour_{waveform}.png'
+    mc_min, mc_max = jnp.min(data_x), jnp.max(data_x)
+    save_path = f'./figures/log_fim_contour_{waveform}_{mc_min}_{mc_max}.png'
     # Plot init
     fig, ax = plt.subplots(figsize=(8, 6))
     # Plotter

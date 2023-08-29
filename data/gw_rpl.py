@@ -9,7 +9,7 @@ import jax.numpy as jnp
 # Package - ripple
 from ripple.waveforms import IMRPhenomXAS
 # Custom config import
-from data.gw_cfg import f_sig, f_ref, param_base, f_psd, f_diff
+from data.gw_cfg import F_SIG, F_REF, PARAM_BASE, F_PSD, F_DIFF
 # XLA GPU resource setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 jax.config.update("jax_enable_x64", True)
@@ -22,10 +22,10 @@ def inner_prod(vec_a: jnp.ndarray, vec_b: jnp.ndarray):
     Noise weighted inner product between vectors a and b
     """
     # Get components
-    numerator = jnp.abs(vec_a.conj()*vec_b)
-    integrand = numerator / f_psd
+    numerator = jnp.abs(vec_a.conj() * vec_b)
+    integrand = numerator / F_PSD
     # Return one side noise weighted inner products
-    return 4 * f_diff * integrand.sum(axis=-1)
+    return 4 * F_DIFF * integrand.sum(axis=-1)
 
 
 # Ripple - Get waveform_plus -> restricted and normalized
@@ -37,9 +37,9 @@ def waveform_plus_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     [Mc, eta, t_c, phi_c]
     '''
     # Set complete ripple_theta
-    theta = param_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
+    theta = PARAM_BASE.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
     # Generate plus polarized waveform
-    h_plus, _ = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, f_ref)
+    h_plus, _ = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, F_REF)
     # Func return
     return h_plus
 
@@ -65,9 +65,9 @@ def waveform_cros_restricted(params: jnp.ndarray, freq: jnp.ndarray):
     [Mc, eta, t_c, phi_c]
     '''
     # Set complete ripple_theta
-    theta = param_base.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
+    theta = PARAM_BASE.at[0:2].set(params[0:2]).at[5:7].set(params[2:4])
     # Generate cross polarized waveform
-    _, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, f_ref)
+    _, h_cros = IMRPhenomXAS.gen_IMRPhenomXAS_polar(freq, theta, F_REF)
     # Func return
     return h_cros
 
@@ -97,7 +97,7 @@ def gradient_plus(theta: jnp.ndarray):
     return jax.vmap(
         jax.grad(waveform_plus_normed, holomorphic=True),
         in_axes=(None, 0),
-    )(params, f_sig)
+    )(params, F_SIG)
 
 
 def gradient_cros(theta: jnp.ndarray):
@@ -111,4 +111,4 @@ def gradient_cros(theta: jnp.ndarray):
     return jax.vmap(
         jax.grad(waveform_cros_normed, holomorphic=True),
         in_axes=(None, 0),
-    )(params, f_sig)
+    )(params, F_SIG)

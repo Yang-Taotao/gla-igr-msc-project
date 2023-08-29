@@ -9,16 +9,16 @@ import bilby
 # Config setup
 # =========================================================================== #
 # Frequency - min, max, step
-f_min, f_max, f_del = 24.0, 512.0, 0.5
+F_MIN, F_MAX, F_DEL = 24.0, 512.0, 0.5
 # Chirp mass - min, max, step
-mc_min, mc_max, mc_num = 1.000, 21.00, 100
+MC_MIN, MC_MAX, MC_NUM = 1.000, 21.00, 100
 # Mass ratio - min, max, step
-eta_min, eta_max, eta_num = 0.050, 0.250, 100
+ETA_MIN, ETA_MAX, ETA_NUM = 0.050, 0.250, 100
 # Base param - mc, eta, s1, s2, dl, tc, phic, theta, phi
-param_base = jnp.array([28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
+PARAM_BASE = jnp.array([28.0956, 0.2471, 0.0, 0.0, 40.0, 0.0, 0.0, 0.0, 0.0])
 # Test param for FIM compilation
-mc, eta = 28.0956, 0.2471
-param_test = jnp.array([mc, eta, 0.0, 0.0])
+MC, ETA = 28.0956, 0.2471
+PARAM_TEST = jnp.array([MC, ETA, 0.0, 0.0])
 # =========================================================================== #
 
 # Frequency array builder
@@ -81,14 +81,14 @@ def theta_ripple(
 
 # Generate results
 # Freq - signal, reference
-f_sig, f_ref = freq_ripple(f_min, f_max, f_del)
+F_SIG, F_REF = freq_ripple(F_MIN, F_MAX, F_DEL)
 # Freq - difference, sampling, duration
-f_diff, f_samp, f_dura = freq_fisher(f_min, f_max, f_del)
+F_DIFF, F_SAMP, F_DURA = freq_fisher(F_MIN, F_MAX, F_DEL)
 # Freq - bilby PSD results
-f_psd = freq_psd(f_samp, f_dura)
+F_PSD = freq_psd(F_SAMP, F_DURA)
 # Chirp mass repo
-mcs = jnp.linspace(mc_min, mc_max, mc_num, dtype=jnp.float32)
+MCS = jnp.linspace(MC_MIN, MC_MAX, MC_NUM)
 # Mass ratio repo
-etas = jnp.linspace(eta_min, eta_max, eta_num, dtype=jnp.float32)
+ETAS = jnp.linspace(ETA_MIN, ETA_MAX, ETA_NUM)
 # Theta matrix result
-theta_repo = theta_ripple(mcs, etas, param_base)
+theta_repo = theta_ripple(MCS, ETAS, PARAM_BASE)
