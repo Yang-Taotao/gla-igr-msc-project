@@ -9,7 +9,7 @@ This is the degree project for *MSc in Astrophysics* at *University of Glasgow*.
 
 ## Purpose
 
-Use normalizing flow for approximating gravitational wave template bank density on 2-D parameter space
+Use normalizing flow for approximating gravitational wave template bank density
 
 ### Working scripts
 
@@ -19,6 +19,7 @@ Use normalizing flow for approximating gravitational wave template bank density 
 ### Work in progress
 
 - Normalizing flow script
+- NF script packaging into vi_* files
 
 [//]: # "========================================================================"
 
@@ -57,31 +58,78 @@ mc, eta, s1, s2, dl, tc, phic, theta, phi = (
 ```
 
 The vectorized waveform parameter is:
-$$\vec{\Theta} = \left[~\mathcal{M},~\eta,~s_1,~s_2,~d_L,~t_c,~\phi_c,~\theta,~\phi~\right]^{\top}$$
+$$
+\vec{\Theta}
+= \left[~\mathcal{M},~\eta,~s_1,~s_2,~d_L,~t_c,~\phi_c,~\theta,~\phi~\right]^{\top}
+$$
 with chirp mass:
-$$\mathcal{M} = \frac{\left(m_1m_2\right)^{3/5}}{\left(m_1+m_2\right)^{1/5}}$$
+$$\mathcal{M}
+= \frac{\left(m_1m_2\right)^{3/5}}{\left(m_1+m_2\right)^{1/5}}$$
 and symmetric mass ratio:
-$$\eta = \frac{\left(m_1m_2\right)}{\left(m_1+m_2\right)^{2}}$$
+$$
+\eta
+= \frac{\left(m_1m_2\right)}{\left(m_1+m_2\right)^{2}}
+$$
 
 ### Template bank density
 
 The one side noise weighted inner product is:
-$$\braket{d|h} = 4\Re{\int_{f_{\text{min}}}^{f_{\text{max}}}\frac{\tilde{d}^{\ast}\tilde{h}}{S(f)}df} = 4\delta f\Re{\sum_i\frac{\tilde{d}_i^{\ast}\tilde{h}_i}{S(f)_i}}$$
+$$
+\braket{d|h}
+= 4\Re{
+    \int_{f_{\text{min}}}^{f_{\text{max}}}
+    \frac{\tilde{d}^{\ast}\tilde{h}}{S(f)}df
+}
+= 4\delta f\Re{\sum_i\frac{\tilde{d}_i^{\ast}\tilde{h}_i}{S(f)_i}}
+$$
 
 A normalized waveform template follow:
 $$h = \mathcal{A}\hat{h}, ~\text{with}~ \bra{\hat{h}}\ket{\hat{h}} = 1$$
 
 That is, the FIM $\mathcal{I}_{(i, j)}$ is:
-$$\mathcal{I}_{(i, j)} = \exp\left[\braket{\tilde{h}_i|\tilde{h}_j}\right] = \exp\left[4\Re{\int_{f_{\text{min}}}^{f_{\text{max}}}\frac{{\tilde{h}_i}^{\ast}{\tilde{h}_j}}{S(f)}df}\right] = \exp\left[4\Re{\delta f\cdot\sum\left[\frac{{\tilde{h}_i}^{\ast}{\tilde{h}_j}}{S(f)}\right]}\right]$$
+$$
+\mathcal{I}_{(i, j)}
+= \exp\left[\braket{\tilde{h}_i|\tilde{h}_j}\right]
+= \exp\left[
+    4\Re{\int_{f_{\text{min}}}^{f_{\text{max}}}
+    \frac{{\tilde{h}_i}^{\ast}{\tilde{h}_j}}{S(f)}df}
+\right]
+= \exp\left[
+    4\Re{\delta f
+    \cdot\sum\left[\frac{{\tilde{h}_i}^{\ast}{\tilde{h}_j}}{S(f)}\right]}
+\right]
+$$
 
 A metric can therefore be denoted as:
-$$\tilde{g}_{ij} = \braket{\frac{\partial\hat{h}}{\partial\Theta_i}|\frac{\partial\hat{h}}{\partial\Theta_j}} = \braket{\partial_i\hat{h}|\partial_j\hat{h}}$$
+$$
+\tilde{g}_{ij}
+= \braket{
+    \frac{\partial\hat{h}}{\partial\Theta_i}
+    |\frac{\partial\hat{h}}{\partial\Theta_j}
+}
+= \braket{\partial_i\hat{h}|\partial_j\hat{h}}
+$$
 
 Where a projection of $\mathcal{I}_{(i, j)}$ onto $\phi_c$ gives:
-$$\gamma_{pq} = \tilde{g}_{pq} - \frac{\tilde{g}_{\phi_c}\tilde{g}_{q\phi_c}}{\tilde{g}_{\phi_c\phi_c}} = \left[\braket{\partial_p\hat{h}_0|\partial_q\hat{h}_0}-\braket{\partial_p\hat{h}_0|\hat{h}_{\frac{\pi}{2}}}\braket{\partial_q\hat{h}_0|\hat{h}_{\frac{\pi}{2}}}\right]$$
+$$
+\gamma_{pq}
+= \tilde{g}_{pq} - \frac{
+    \tilde{g}_{\phi_c}\tilde{g}_{q\phi_c}
+    }{
+        \tilde{g}_{\phi_c\phi_c}
+}
+= \left[
+    \braket{\partial_p\hat{h}_0|\partial_q\hat{h}_0}
+    -\braket{\partial_p\hat{h}_0|\hat{h}_{\frac{\pi}{2}}}
+    \braket{\partial_q\hat{h}_0|\hat{h}_{\frac{\pi}{2}}}
+\right]
+$$
 
 Projecting back onto $t_c$ yields the correct template bank density:
-$$g_{kl} = \gamma_{kl} - \frac{\gamma_{{t_c}k}\gamma_{{t_c}l}}{\gamma_{{t_c}{t_c}}}$$
+$$
+g_{kl}
+= \gamma_{kl} - \frac{\gamma_{{t_c}k}\gamma_{{t_c}l}}{\gamma_{{t_c}{t_c}}}
+$$
 
 [//]: # "========================================================================"
 
@@ -99,11 +147,15 @@ $$g_{kl} = \gamma_{kl} - \frac{\gamma_{{t_c}k}\gamma_{{t_c}l}}{\gamma_{{t_c}{t_c
 │   ├── gw_fim.py
 │   ├── gw_plt.py
 │   ├── gw_rpl.py
-│   └── gw_sim.py
+│   ├── vi_cfg.py
+│   ├── vi_cls.py
+│   ├── vi_dat.py
+│   └── vi_plt.py
 ├── figures
-├── results
 ├── legacy
 ├── main.py
+├── test.py
+└── results
 ```
 
 [//]: # "========================================================================"
@@ -183,8 +235,25 @@ gw_plt.log_fim_contour(mcs, etas, density_c, waveform="hc")
 
 - Log template density
 
-> ![Log10 based template density for waveform plus](./figures/log_fim_contour_hp.png)
-> ![Log10 based template density for waveform cros](./figures/log_fim_contour_hc.png)
+> ![Log template density for waveform plus](./figures/log_fim_contour_hp_1.0_21.0.png)
+> ![Log template density for waveform cros](./figures/log_fim_contour_hc_1.0_21.0.png)
+
+- Log template density at different range
+
+> ![Log template density for waveform plus at lower mc](./figures/log_fim_contour_hp_1.0_2.0.png)
+> ![Log template density for waveform plus at low mc](./figures/log_fim_contour_hp_1.0_6.0.png)
+> ![Log template density for waveform plus at high mc](./figures/log_fim_contour_hp_21.0_26.0.png)
+> ![Log template density for waveform plus at higher mc](./figures/log_fim_contour_hp_21.0_61.0.png)
+
+- Normalising flow test
+
+> ![BVM direct](./results/flow_posterior_calc.png)
+> ![BVM approx](./results/flow_posterior.png)
+
+- Normalising flow training
+
+> ![Training loss](./results/flow_loss.png)
+> ![Training iterations](./results/flow_animation.gif)
 
 ### Legacy figures
 
