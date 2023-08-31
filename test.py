@@ -156,7 +156,7 @@ def make_flow_model(
     mask = np.reshape(mask, event_shape)
     mask = mask.astype(bool)
     # Param range definer
-    range_min, range_max = 0.0, 2*jnp.pi
+    range_min, range_max = 0.0, 1.0
 
     # Bijector
     def bijector_fn(params: jnp.ndarray):
@@ -166,7 +166,7 @@ def make_flow_model(
         return distrax.RationalQuadraticSpline(
             # Regular spline
             # This defines the domain of the flow parameters
-            params, range_min=0.0, range_max=2*jnp.pi
+            params, range_min=0.0, range_max=1.0
         )
 
 
@@ -247,11 +247,11 @@ def loss_fn(params: hk.Params, prng_key: PRNGKey, data_n: int) -> jnp.ndarray:
     """
     Calculate the expected value of Kullback-Leibler (KL) divergence 
     """
-    # Local calculation resources
+    # Local calculation resources # (n, 2) and (n, )
     x_flow, log_q = sample_and_log_prob.apply(params, prng_key, data_n)
-    log_p = dist.log_prob(x_flow)
+    log_p = dist.log_prob(x_flow) # (n, )
     # Get the KL divergence as loss
-    data_loss = jnp.mean(log_q - log_p)
+    data_loss = jnp.mean(log_q - log_p) # single result
     # Func return
     return data_loss
 
@@ -326,7 +326,7 @@ if __name__ == '__main__':
             losses.append(loss)
             tepochs.set_postfix(ldict, refresh=True)
             # Problematic grad(loss_fn)
-            data_param, data_opt_state = update(data_param, data_prng_key, data_opt_state) 
+            data_param, data_opt_state = update(data_param, data_prng_key, data_opt_state)
             # Results
             if epoch%100 == 0:
                 x_gen, log_prob_gen = sample_and_log_prob.apply(

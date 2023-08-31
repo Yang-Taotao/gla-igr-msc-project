@@ -3,7 +3,7 @@
 This is the degree project for *MSc in Astrophysics* at *University of Glasgow*.
 
 - Initialized: May 30, 2023
-- Editted: August 23, 2023
+- Edited: August 30, 2023
 
 [//]: # "========================================================================"
 
@@ -14,7 +14,7 @@ Use normalizing flow for approximating gravitational wave template bank density
 ### Working scripts
 
 - Template density for polarized GW waveform with respect to $\mathcal{M}$ and $\eta$
-- Normalizing flow script - *under maintainance*
+- Normalizing flow script - *under maintenance*
 
 ### Work in progress
 
@@ -58,24 +58,21 @@ mc, eta, s1, s2, dl, tc, phic, theta, phi = (
 ```
 
 The vectorized waveform parameter is:
-$$
-\vec{\Theta}
+$$\vec{\Theta}
 = \left[~\mathcal{M},~\eta,~s_1,~s_2,~d_L,~t_c,~\phi_c,~\theta,~\phi~\right]^{\top}
 $$
 with chirp mass:
 $$\mathcal{M}
 = \frac{\left(m_1m_2\right)^{3/5}}{\left(m_1+m_2\right)^{1/5}}$$
 and symmetric mass ratio:
-$$
-\eta
+$$\eta
 = \frac{\left(m_1m_2\right)}{\left(m_1+m_2\right)^{2}}
 $$
 
 ### Template bank density
 
 The one side noise weighted inner product is:
-$$
-\braket{d|h}
+$$\braket{d|h}
 = 4\Re{
     \int_{f_{\text{min}}}^{f_{\text{max}}}
     \frac{\tilde{d}^{\ast}\tilde{h}}{S(f)}df
@@ -83,12 +80,13 @@ $$
 = 4\delta f\Re{\sum_i\frac{\tilde{d}_i^{\ast}\tilde{h}_i}{S(f)_i}}
 $$
 
-A normalized waveform template follow:
-$$h = \mathcal{A}\hat{h}, ~\text{with}~ \bra{\hat{h}}\ket{\hat{h}} = 1$$
+A normalized waveform template follows:
+$$h
+= \mathcal{A}\hat{h}, ~\text{with}~ \bra{\hat{h}}\ket{\hat{h}} = 1
+$$
 
 That is, the FIM $\mathcal{I}_{(i, j)}$ is:
-$$
-\mathcal{I}_{(i, j)}
+$$\mathcal{I}_{(i, j)}
 = \exp\left[\braket{\tilde{h}_i|\tilde{h}_j}\right]
 = \exp\left[
     4\Re{\int_{f_{\text{min}}}^{f_{\text{max}}}
@@ -101,8 +99,7 @@ $$
 $$
 
 A metric can therefore be denoted as:
-$$
-\tilde{g}_{ij}
+$$\tilde{g}_{ij}
 = \braket{
     \frac{\partial\hat{h}}{\partial\Theta_i}
     |\frac{\partial\hat{h}}{\partial\Theta_j}
@@ -111,8 +108,7 @@ $$
 $$
 
 Where a projection of $\mathcal{I}_{(i, j)}$ onto $\phi_c$ gives:
-$$
-\gamma_{pq}
+$$\gamma_{pq}
 = \tilde{g}_{pq} - \frac{
     \tilde{g}_{\phi_c}\tilde{g}_{q\phi_c}
     }{
@@ -126,8 +122,7 @@ $$
 $$
 
 Projecting back onto $t_c$ yields the correct template bank density:
-$$
-g_{kl}
+$$g_{kl}
 = \gamma_{kl} - \frac{\gamma_{{t_c}k}\gamma_{{t_c}l}}{\gamma_{{t_c}{t_c}}}
 $$
 
@@ -137,25 +132,25 @@ $$
 
 ```bash
 .
-├── LICENSE
-├── README.md
-├── data
-│   ├── __init__.py
-│   ├── __jaxcache__
-│   ├── __pycache__
-│   ├── gw_cfg.py
-│   ├── gw_fim.py
-│   ├── gw_plt.py
-│   ├── gw_rpl.py
-│   ├── vi_cfg.py
-│   ├── vi_cls.py
-│   ├── vi_dat.py
-│   └── vi_plt.py
-├── figures
-├── legacy
-├── main.py
-├── test.py
-└── results
+|-- LICENSE
+|-- README.md
+|-- data
+|   |-- __init__.py
+|   |-- __jaxcache__
+|   |-- __pycache__
+|   |-- gw_cfg.py
+|   |-- gw_fim.py
+|   |-- gw_plt.py
+|   |-- gw_rpl.py
+|   |-- vi_cfg.py
+|   |-- vi_cls.py
+|   |-- vi_dat.py
+|   |-- vi_plt.py
+|-- figures
+|-- legacy
+|-- main.py
+|-- test.py
+|-- results
 ```
 
 [//]: # "========================================================================"
@@ -163,53 +158,70 @@ $$
 ## Sample run
 
 ```python
+"""
+This is the master script for MSc project.
+
+Created on Thu August 03 2023
+"""
+# %%
 # Library import
 # Set XLA resource allocation
 import os
 # Use jax and persistent cache
 from jax.experimental.compilation_cache import compilation_cache as cc
 # Custom packages
-from data import gw_fim, gw_plt, gw_rpl
-from data.gw_cfg import f_sig, f_psd, mcs, etas, test_params
+from src.template_flow import gw_fim, gw_plt, gw_rpl, vi_dat
+from src.template_flow.gw_cfg import MCS, ETAS, PARAM_TEST, F_SIG, F_PSD
 # Setup
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'false'
 cc.initialize_cache("./data/__jaxcache__")
 
-# First compilation
+# %%
+# First compilation test for sub modules
 # Wavefor generation
-hp = gw_rpl.waveform_plus_restricted(test_params, f_sig)
-hc = gw_rpl.waveform_cros_restricted(test_params, f_sig)
+HP = gw_rpl.waveform_plus_restricted(PARAM_TEST, F_SIG)
+HC = gw_rpl.waveform_cros_restricted(PARAM_TEST, F_SIG)
 # Gradient calculation
-gp = gw_rpl.gradient_plus(test_params)
-gc = gw_rpl.gradient_cros(test_params)
+GP = gw_rpl.gradient_plus(PARAM_TEST)
+GC = gw_rpl.gradient_cros(PARAM_TEST)
 # FIM test statistics calculation
-detp = gw_fim.log10_sqrt_det_plus(test_params)
-detc = gw_fim.log10_sqrt_det_cros(test_params)
+DETP = gw_fim.log_sqrt_det_plus(PARAM_TEST)
+DETC = gw_fim.log_sqrt_det_cros(PARAM_TEST)
 # First compilation - results checker
-print(f"Test waveform hp.shape:{hp.shape} hc.shape:{hc.shape}")
-print(f"Test gradient gp.shape:{gp.shape} gc.shape:{gc.shape}")
-print(f"Test log10 density detp:{detp:.4g} detc:{detp:.4g}")
+print(f"Test waveform HP.shape:{HP.shape} hc.shape:{HC.shape}")
+print(f"Test gradient gp.shape:{GP.shape} gc.shape:{GC.shape}")
+print(f"Test log density detp:{DETP:.4g} detc:{DETC:.4g}")
 
+# %%
 # FIM density calc params
-fim_param = gw_fim.fim_param_build(mcs, etas)
-print(f"fim_param.shape:{fim_param.shape}")
+FIM_PARAM = gw_fim.fim_param_build(MCS, ETAS)
+print(f"fim_param.shape:{FIM_PARAM.shape}")
 
-# Density matrix batching
-density_p = gw_fim.density_batch_calc(
-    fim_param, mcs, etas, batch_size=100, waveform="hp")
-density_c = gw_fim.density_batch_calc(
-    fim_param, mcs, etas, batch_size=100, waveform="hc")
-print(f"Metric density_p.shape:{density_p.shape}")
-print(f"Metric density_c.shape:{density_c.shape}")
+# %%
+# New compilation for vectorized operaions
+DENSITY_P = gw_fim.log_density_plus(FIM_PARAM).reshape([len(MCS), len(ETAS)])
+DENSITY_C = gw_fim.log_density_cros(FIM_PARAM).reshape([len(MCS), len(ETAS)])
 
+# %%
 # Plot Generation
-gw_plt.ripple_waveform(f_sig, hp, waveform="hp")
-gw_plt.ripple_waveform(f_sig, hc, waveform="hc")
-gw_plt.ripple_gradient(f_sig, hp, hc, param="mc")
-gw_plt.ripple_gradient(f_sig, hp, hc, param="eta")
-gw_plt.bilby_noise_psd(f_sig, f_psd)
-gw_plt.log_fim_contour(mcs, etas, density_p, waveform="hp")
-gw_plt.log_fim_contour(mcs, etas, density_c, waveform="hc")
+gw_plt.ripple_waveform(F_SIG, HP, waveform="hp")
+gw_plt.ripple_waveform(F_SIG, HC, waveform="hc")
+gw_plt.ripple_gradient(F_SIG, HP, HC, param="mc")
+gw_plt.ripple_gradient(F_SIG, HP, HC, param="eta")
+gw_plt.bilby_noise_psd(F_SIG, F_PSD)
+gw_plt.log_fim_contour(MCS, ETAS, DENSITY_P, waveform="hp")
+gw_plt.log_fim_contour(MCS, ETAS, DENSITY_C, waveform="hc")
+gw_plt.log_fim_param(MCS, DENSITY_P, waveform= "hp",param= "mc")
+gw_plt.log_fim_param(ETAS, DENSITY_P, waveform= "hp",param= "eta")
+gw_plt.log_fim_param(MCS, DENSITY_C, waveform= "hc",param= "mc")
+gw_plt.log_fim_param(ETAS, DENSITY_C, waveform= "hc",param= "eta")
+
+# %%
+# Flow training
+vi_dat.train_flow()
+
+# %%
+
 
 ```
 

@@ -1,4 +1,3 @@
-
 """
 Plotter functions repository for VI related tasks.
 """
