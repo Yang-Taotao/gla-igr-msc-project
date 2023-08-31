@@ -146,7 +146,7 @@ def make_flow_model(
     mask = np.reshape(mask, event_shape)
     mask = mask.astype(bool)
     # Param range definer
-    range_min, range_max = 0.0, 2*jnp.pi
+    range_min, range_max = 0.0, 1.0 #2*jnp.pi
 
     # Bijector
     def bijector_fn(params: jnp.ndarray):
@@ -156,7 +156,7 @@ def make_flow_model(
         return distrax.RationalQuadraticSpline(
             # Regular spline
             # This defines the domain of the flow parameters
-            params, range_min=0.0, range_max=2*jnp.pi
+            params, range_min=0.0, range_max= 1.0 #2*jnp.pi
         )
 
 

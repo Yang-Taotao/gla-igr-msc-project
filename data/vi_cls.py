@@ -29,8 +29,8 @@ class BivariateVonMises:
         '''
         # 2-D parameters
         phi, psi = data_x.T
-        # phi = 2*jnp.pi*phi
-        # psi = 2*jnp.pi*psi
+        phi = 2*jnp.pi*phi
+        psi = 2*jnp.pi*psi
         # Get result
         result = (
             self.data_k1*jnp.cos(phi - self.data_mu)
